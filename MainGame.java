@@ -8,19 +8,26 @@ public class MainGame {
     static Room Bar = new Room("Bar"), GameRoom = new Room("GameRoom"), Vip = new Room("VIP", true);
     public Room[] rooms = {Bar, GameRoom, Vip};
 
+    private static void setupGame() {
+        
+    }
+
     public static void main(String[] args) {
         File saveFile = new File("save.txt");
         Scanner in = new Scanner(System.in);
         MainGame game = new MainGame();
 
+        setupGame();
+
         try {
             if (!saveFile.exists()) {
-                saveFile.createNewFile();
                 System.out.print("Enter your name: ");
                 String playerName = in.nextLine();
                 System.out.println("Welcome, " + playerName + "!");
                 gambler = new Player(playerName);
-                System.out.println("For help with commands or what you can do in each room simply type \"help\" or \"?\" at anytime!");
+                System.out.println("For help with commands or options for your current room, simply type \"help\" or \"?\" at anytime!");
+                saveFile.createNewFile();
+                saveGame(false);
             } else {
                 System.out.println("Save file found. Loading game...");
                 loadGame();
@@ -30,7 +37,22 @@ public class MainGame {
             e.printStackTrace();
         }
 
-        
+        while (true) {
+            if (in.nextLine().equals("?") || in.nextLine().equalsIgnoreCase("help")) {
+                System.out.println("General help:\n");
+                System.out.println("Room help:\n");
+                System.out.println(gambler.inRoom.getHelp());
+            }
+        }
+    }
+
+    static void restart() {
+        File delete = new File("save.txt");
+        if (delete.delete()) {
+            System.out.println("Old save deleted, restart game to begin fresh.");
+        } else {
+            System.out.println("Nothing to restart!");
+        }
     }
 
     static void loadGame() {
@@ -50,12 +72,14 @@ public class MainGame {
         }
     }
 
-    void saveGame() {
+    static void saveGame(boolean printSave) {
         try (FileWriter writer = new FileWriter("save.txt")) {
             writer.write(gambler.getName() + "\n");
             writer.write(gambler.getBalance() + "\n");
             writer.write(Vip.locked + "\n");
-            System.out.println("Game saved successfully.");
+            if (printSave) {
+                System.out.println("Game saved successfully.");
+            }
         } catch (IOException e) {
             System.out.println("Error saving the game.");
             e.printStackTrace();
