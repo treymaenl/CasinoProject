@@ -12,7 +12,9 @@ public class MainGame {
                                     "exit" - will prompt you to exit the game
                                     "restart" - will prompt you to restart the game
                                     "move" - will prompt you to move rooms
-                                    "save" - will save the game""";
+                                    "save" - will save the game
+                                    "room help" - will show room specific help
+                                    "all help" - will show all command options""";
 
     private static void setupGame() {
         
@@ -49,6 +51,8 @@ public class MainGame {
             String user;
 
             while (tutorial) { 
+                System.out.println("This is a text based game, so prepare to read!" +
+                                    "");
                 System.out.printf("Would you like a tutorial? y/n: ");
                 user = in.nextLine();
                 int choice = yesOrNo(user);
@@ -66,7 +70,7 @@ public class MainGame {
                 System.out.println(generalHelp);
                 System.out.println("You can see commands at any point by typing \"help\" or \"?\"");
                 while (true) {
-                    System.out.printf("Ready to continue to the game? Y/N: ");
+                    System.out.printf("Ready to continue to the game? y/n: ");
                     user = in.nextLine();
                     int choice = yesOrNo(user);
                     if (choice == 1) {
@@ -84,9 +88,13 @@ public class MainGame {
             if (user.equals("?") || user.equalsIgnoreCase("help")) {
                 System.out.println("General help:");
                 System.out.println(generalHelp);
+
+            } else if (user.equalsIgnoreCase("room help")) {
                 System.out.println(gambler.inRoom.getName() + " help:");
                 System.out.println(gambler.inRoom.getHelp());
 
+            } else if (user.equalsIgnoreCase("all help")) {
+                System.out.println();
 
             } else if (user.equalsIgnoreCase("move")) {
                 System.out.println("Which room would you like to move to?");
@@ -105,7 +113,7 @@ public class MainGame {
 
             } else if (user.equalsIgnoreCase("restart")) {
                 while (true) {
-                    System.out.printf("Are you sure you want to restart, all progress will be deleted: Y/N: ");
+                    System.out.printf("Are you sure you want to restart, all progress will be deleted: y/n: ");
                     user = in.nextLine();
                     int choice = yesOrNo(user);
                     if (choice == 1) {
@@ -119,7 +127,7 @@ public class MainGame {
 
             } else if (user.equalsIgnoreCase("exit")) {
                 while (true) {
-                    System.out.printf("Are you sure you want to exit: Y/N: ");
+                    System.out.printf("Are you sure you want to exit: y/n: ");
                     user = in.nextLine();
                     int choice = yesOrNo(user);
                     if (choice == 1) {
