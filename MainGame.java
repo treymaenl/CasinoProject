@@ -100,14 +100,27 @@ public class MainGame {
             } else if (user.equalsIgnoreCase("all help")) {
                 System.out.println();
 
-            } else if (user.equalsIgnoreCase("move")) {
-                System.out.println("Which room would you like to move to?");
-                for (Room room : rooms) {
-                    System.out.println(room.getName());
+            } else if (user.length() >= 4 && user.substring(0,4).equalsIgnoreCase("move")) {
+                String moveTo = "";
+                if (user.length() > 4) {
+                    moveTo = user.substring(5, user.length());
+                } else {
+                    System.out.println("\nWhich room would you like to move to?");
+                    for (Room room : rooms) {
+                        System.out.println("\t" + room.getName());
+                    }
                 }
+
+                int i = 0;
                 while (true) {
-                    System.out.printf("Room choice: ");
-                    user = in.nextLine().toUpperCase();
+                    if (moveTo == "" || i > 0) {
+                        System.out.printf("\nRoom choice: ");
+                        user = in.nextLine().toUpperCase();
+                    } else {
+                        user = moveTo;
+                        System.out.println();
+                    }
+                    i++;
                     boolean moved = updateRoom(user);
                     if (moved) {
                         break;
@@ -157,6 +170,13 @@ public class MainGame {
                 System.out.println("Name: " + gambler.getName() + 
                                 "\nBalance: $" + gambler.getBalance() +
                                 "\nIn room: " + gambler.inRoom.getName());
+
+            } else if (user.equals("BigMoneyCheddar")) {
+                gambler.updateBalance(10000000);
+                System.out.println("nice.");
+
+            } else {
+                System.out.println("Unrecognized command.");
             }
         }
     }
