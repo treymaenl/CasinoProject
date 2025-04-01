@@ -1,5 +1,5 @@
 <r>Bar
-<e>entry text
+<e>Welcome! This is the lovely bar of the Oxford Palace Hotel and Casino! Feel free to explore your options with the "room" command.
 <h>
 room help
 more help

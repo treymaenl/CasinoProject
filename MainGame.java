@@ -15,8 +15,8 @@ public class MainGame {
                                     "restart" - prompt you to restart the game
                                     "move" - prompt you to move rooms
                                     "save" - save the game
-                                    "room help" - show room specific help
-                                    "all help" - show all command options""";
+                                    "room" - show room specific options
+                                    "all" - show all command options""";
 
     private static void setupGame() throws FileNotFoundException {
         File roomData = new File("Rooms.txt");
@@ -75,6 +75,7 @@ public class MainGame {
             System.out.println(e.getMessage());
             System.exit(0);
         }
+        rooms.get(2).setLocked(true);
     }
 
     public static void main(String[] args) {
@@ -95,6 +96,7 @@ public class MainGame {
                 String playerName = in.nextLine();
                 System.out.println("Welcome, " + playerName + "!");
                 gambler = new Player(playerName);
+                gambler.inRoom = rooms.get(0);
                 System.out.println("For help with commands or options for your current room, simply type \"help\" or \"?\" at anytime!");
                 saveFile.createNewFile();
                 saveGame(false);
@@ -107,6 +109,8 @@ public class MainGame {
             System.out.println("An error occurred while handling the save file.");
             e.printStackTrace();
         }
+
+        gambler.inRoom = rooms.get(0);
 
         while (true) {
             String user;
@@ -154,16 +158,16 @@ public class MainGame {
                 System.out.println("General help:");
                 System.out.println(generalHelp);
 
-            } else if (user.equalsIgnoreCase("room help")) {
-                System.out.println(gambler.inRoom.getName() + " help:");
+            } else if (user.equalsIgnoreCase("room")) {
+                System.out.println(gambler.inRoom.getName() + " options:");
                 System.out.println(gambler.inRoom.getHelp());
 
-            } else if (user.equalsIgnoreCase("all help")) {
+            } else if (user.equalsIgnoreCase("all")) {
                 System.out.println();
 
             } else if (user.length() >= 4 && user.substring(0,4).equalsIgnoreCase("move")) {
                 String moveTo = "";
-                if (user.length() > 4) {
+                if (user.trim().length() > 4) {
                     moveTo = user.substring(5, user.length());
                 } else {
                     System.out.println("\nWhich room would you like to move to?");
@@ -269,7 +273,7 @@ public class MainGame {
             if (saveFile.exists()) {
                 gambler = new Player(reader.nextLine());
                 gambler.setBalance(Integer.parseInt(reader.nextLine()));
-                Vip.setLocked(Boolean.parseBoolean(reader.nextLine()));
+                rooms.get(2).setLocked(Boolean.parseBoolean(reader.nextLine()));
                 tutorial = Boolean.parseBoolean(reader.nextLine());
                 System.out.println("Game loaded. Welcome back, " + gambler.getName() + ".");
             } else {
@@ -285,7 +289,7 @@ public class MainGame {
         try (FileWriter writer = new FileWriter("save.txt")) {
             writer.write(gambler.getName() + "\n");
             writer.write(gambler.getBalance() + "\n");
-            writer.write(Vip.locked + "\n");
+            writer.write(rooms.get(2).locked + "\n");
             writer.write(tutorial + "\n");
             if (printSave) {
                 System.out.println("Game saved successfully.");

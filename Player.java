@@ -6,7 +6,7 @@ public class Player extends MainGame {
     public Player(String name) {
         this.name = name;
         this.balance = 1000;
-        this.inRoom = Bar;
+        this.inRoom = null;
     }
 
     void showOffEarnings() {
