@@ -37,6 +37,7 @@ public class MainGame {
     static String[] bartenderVIP = {"Looking good!", "I knew the second you walked in that you'd beat the house!", "Way to go today boss!"};
     static int barLastTalk = -1;
 
+    // Some important information to have to start the game
     private static void setupGame() throws FileNotFoundException {
         File roomData = new File("Rooms.txt");
         if (!roomData.exists()) {
@@ -45,61 +46,93 @@ public class MainGame {
         roomFromFile(roomData);
     }
 
+    // Creates rooms based on textfile, can add more rooms easier
     private static void roomFromFile(File roomData) {
         try (Scanner reader = new Scanner(roomData)) {
+            // boolean for room name (r), entry text (e), and help text (h)
             boolean r = false, e = false, h = false;
+            // strings for room construction
             String roomName = "", entryText = "", helpText = "";
+
+            // reading file
             while (reader.hasNextLine()) {
                 String line = reader.nextLine();
+
+                // end signifies end of file
                 if (line.equals("end")) {
                     System.out.println("Startup succesful...");
                     break;
                 }
+
+                // handling empty lines and markers
                 String marker = "";
                 if (line.trim().isBlank()) {
                     continue;
                 } else if (line.length() >= 3) {
                     marker = line.substring(0, 3);
                 } else {
+                    // all lines with the file should be at least 3 characters long or blank
                     throw new Exception("Issue with Rooms.txt");
                 }
 
+                // room name marker
                 if (marker.equals("<r>")) {
                     roomName = line.substring(3, line.length());
                     r = true;
+
+                // entry text marker
                 } else if (marker.equals("<e>")) {
                     entryText = line.substring(3, line.length());
                     e = true;
+
+                // help text marker
                 } else if (marker.equals("<h>")) {
                     StringBuilder roomHelp = new StringBuilder("");
+
+                    // getting one or multiple lines of help text
                     while (true) {
                         line = reader.nextLine();
+
+                        // help text end marker
                         if (line.equals("</h>")) {
                             break;
                         }
                         roomHelp.append("  " + line + "\n");
                     }
+
+                    // deleting last newline character
                     roomHelp.deleteCharAt(roomHelp.length() - 1);
+
+                    // toString
                     helpText = roomHelp.toString();
                     h = true;
                 }
+
+                // Once all info filled, creates rooms using information
+                // File must be correctly formatted for this to work properly
                 if (r & e & h) {
                     Room currentRoom = new Room(roomName, entryText, helpText);
                     rooms.add(currentRoom);
                     r = e = h = false;
                 }
             }
+
+            // Closing reader
             reader.close();
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.exit(0);
         }
+
+        // Setting VIP to locked
         rooms.get(2).setLocked(true);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
+        // looking for existing save file
         File saveFile = new File("save.txt");
         Scanner in = new Scanner(System.in);
 
@@ -110,31 +143,80 @@ public class MainGame {
             System.exit(0);
         }
 
+        // deleting bad saves
+        if (saveFile.exists()) {
+
+            // Nothing in file
+            if (saveFile.length() == 0) {
+                saveFile.delete();
+                System.out.println("Bad save file deleted");
+
+            // Checking for proper line counts
+            } else {
+                int lineCount = 0;
+                Scanner reader = new Scanner(saveFile);
+
+                // Counting lines
+                while (reader.hasNextLine()) {
+                    lineCount++;
+                    reader.nextLine();
+                }
+
+                reader.close();
+
+                // Proper save file should only be 4 lines
+                if (lineCount != 5) {
+                    saveFile.delete();
+                    System.out.println("Bad save file deleted");
+                }
+            }
+        }
+
+        // Starting or loading game
         try {
+            // No prior save
             if (!saveFile.exists()) {
+                // Give tutorial option
                 tutorial = true;
+
+                // Get name
                 System.out.print("Enter your name: ");
                 String playerName = in.nextLine();
+
+                // Limit player name to 16 characters
                 if (playerName.length() > 16) {
                     playerName = playerName.substring(0, 16);
                 }
+
+                // Welcome player
                 System.out.println("Welcome, " + playerName + "!");
+
+                // Create player object
                 gambler = new Player(playerName);
+
+                // Put player in bar
                 gambler.inRoom = rooms.get(0);
+
+                // Give a little tip
                 System.out.println("For help with commands or options for your current room, simply type \"help\" or \"?\" at anytime!");
+
+                // Create new save file and immediately put relevant information into it to avoid future problems
                 saveFile.createNewFile();
                 saveGame(false);
+
+                // Game time
                 System.out.println("This is a text based game, so prepare to read!");
+
+            // Loading game from save file
             } else {
                 System.out.println("Save file found. Loading game...");
                 loadGame();
             }
+
         } catch (IOException e) {
             System.out.println("An error occurred while handling the save file.");
             e.printStackTrace();
         }
-
-        gambler.inRoom = rooms.get(0);
 
         while (true) {
             String user;
@@ -408,11 +490,18 @@ public class MainGame {
     }
 
     static void loadGame() {
+        // Using save file to load game
         File saveFile = new File("save.txt");
         try (Scanner reader = new Scanner(saveFile)) {
             if (saveFile.exists()) {
                 gambler = new Player(reader.nextLine());
                 gambler.setBalance(Integer.parseInt(reader.nextLine()));
+                String roomName = reader.nextLine();
+                for (Room room : rooms) {
+                    if (room.getName().equals(roomName)) {
+                        gambler.inRoom = room;
+                    }
+                }
                 rooms.get(2).setLocked(Boolean.parseBoolean(reader.nextLine()));
                 tutorial = Boolean.parseBoolean(reader.nextLine());
                 System.out.println("Game loaded. Welcome back, " + gambler.getName() + ".");
@@ -429,6 +518,7 @@ public class MainGame {
         try (FileWriter writer = new FileWriter("save.txt")) {
             writer.write(gambler.getName() + "\n");
             writer.write(gambler.getBalance() + "\n");
+            writer.write(gambler.inRoom.getName() + "\n");
             writer.write(rooms.get(2).locked + "\n");
             writer.write(tutorial + "\n");
             if (printSave) {

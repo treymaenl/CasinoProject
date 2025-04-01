@@ -1,4 +1,5 @@
 Fletcher
-0
-true
+1000
+VIP
+false
 false
