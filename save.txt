@@ -1,5 +1,5 @@
 Fletcher
 1000
-VIP
-false
-false
+Bar
+true
+true

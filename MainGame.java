@@ -245,7 +245,7 @@ public class MainGame {
                 while (true) {
                     System.out.printf("Hit ENTER to continue to game: ");
                     user = in.nextLine();
-                    System.out.println("\n\nGreat let's begin at the bar!");
+                    System.out.println("\n\nGreat let's begin!");
                     System.out.println(gambler.inRoom.enter());
                     break;
                 }
@@ -264,7 +264,7 @@ public class MainGame {
                 System.out.println(gambler.inRoom.getHelp());
 
             } else if (user.equalsIgnoreCase("all")) {
-                System.out.println();
+                System.out.println(allHelp);
 
             } else if (user.length() >= 4 && user.substring(0,4).equalsIgnoreCase("move")) {
                 String moveTo = "";
@@ -273,7 +273,7 @@ public class MainGame {
                 } else {
                     System.out.println("\nWhich room would you like to move to?");
                     for (Room room : rooms) {
-                        System.out.println("\t" + room.getName());
+                        System.out.println("\s\s" + room.getName());
                     }
                 }
 
@@ -459,11 +459,13 @@ public class MainGame {
                 System.out.println(bartender);
                 barLastTalk = line;
 
-            } else if (true) {
-
+            } else if (user.equals("Huh?")) {
+                System.out.println("\nBARTENDER: Are we gonna have a problem?");
 
             } else {
-                System.out.println("Unrecognized command.");
+                if (gambler.inRoom == rooms.get(0)) {
+                    System.out.println("\nBARTENDER: Huh?");
+                }
             }
         }
     }
