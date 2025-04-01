@@ -1,9 +1,8 @@
 <r>Bar
 <e>Welcome! This is the lovely bar of the Oxford Palace Hotel and Casino! Feel free to explore your options with the "room" command.
 <h>
-room help
-more help
-still more help
+"order" - order drinks or food from the bar
+"talk" - talk to the bartender
 </h>
 
 <r>Game Room
