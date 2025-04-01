@@ -40,4 +40,8 @@ public class Room {
         this.helpText = text;
     }
 
+    public String enter() {
+        return this.entryText;
+    }
+
 }
