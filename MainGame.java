@@ -9,12 +9,13 @@ public class MainGame {
     public static Room[] rooms = {Bar, GameRoom, Vip};
     static boolean tutorial = false;
     static String generalHelp = """
-                                    "exit" - will prompt you to exit the game
-                                    "restart" - will prompt you to restart the game
-                                    "move" - will prompt you to move rooms
-                                    "save" - will save the game
-                                    "room help" - will show room specific help
-                                    "all help" - will show all command options""";
+                                    "me" - show your information
+                                    "exit" - prompt you to exit the game
+                                    "restart" - prompt you to restart the game
+                                    "move" - prompt you to move rooms
+                                    "save" - save the game
+                                    "room help" - show room specific help
+                                    "all help" - show all command options""";
 
     private static void setupGame() {
         
@@ -37,6 +38,7 @@ public class MainGame {
                 System.out.println("For help with commands or options for your current room, simply type \"help\" or \"?\" at anytime!");
                 saveFile.createNewFile();
                 saveGame(false);
+                System.out.println("This is a text based game, so prepare to read!");
             } else {
                 System.out.println("Save file found. Loading game...");
                 loadGame();
@@ -47,12 +49,9 @@ public class MainGame {
         }
 
         while (true) {
-            System.out.printf(gambler.getName().toUpperCase() + ": ");
             String user;
 
             while (tutorial) { 
-                System.out.println("This is a text based game, so prepare to read!" +
-                                    "");
                 System.out.printf("Would you like a tutorial? y/n: ");
                 user = in.nextLine();
                 int choice = yesOrNo(user);
@@ -65,10 +64,14 @@ public class MainGame {
                 }
             }
             if (tutorial) {
-                System.out.println("Very well then!\n" +
-                                    "Seeing as this is your first time playing, here are some important commands that you will be using to play the game:");
+                System.out.println("Very well then!\nTUTORIAL\n" +
+                                    "Here are some important commands that you will be using to play the game:");
                 System.out.println(generalHelp);
                 System.out.println("You can see commands at any point by typing \"help\" or \"?\"");
+                System.out.printf("Type anything to continue: ");
+                user = in.nextLine();
+                System.out.println("\n\nIn a moment you will see your name appear in the console, it will appear as \n\nYOURNAME:\n\n" +
+                                    "When this is on the screen you are able to type any command to play.");
                 while (true) {
                     System.out.printf("Ready to continue to the game? y/n: ");
                     user = in.nextLine();
@@ -83,8 +86,9 @@ public class MainGame {
                 tutorial = false;
             }
 
-
+            System.out.printf("\n" + gambler.getName().toUpperCase() + ": ");
             user = in.nextLine();
+
             if (user.equals("?") || user.equalsIgnoreCase("help")) {
                 System.out.println("General help:");
                 System.out.println(generalHelp);
@@ -148,6 +152,11 @@ public class MainGame {
 
             } else if (user.equals("tutorial")) {
                 tutorial = true;
+
+            } else if (user.equalsIgnoreCase("me")) {
+                System.out.println("Name: " + gambler.getName() + 
+                                "\nBalance: $" + gambler.getBalance() +
+                                "\nIn room: " + gambler.inRoom.getName());
             }
         }
     }
