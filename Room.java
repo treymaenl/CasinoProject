@@ -14,6 +14,16 @@ public class Room {
         this.locked = locked;
     }
 
+    Room(String name, boolean locked, String helpText) {
+        this.name = name;
+        this.locked = locked;
+        this.helpText = helpText;
+    }
+
+    boolean isLocked() {
+        return this.locked;
+    }
+
     void setLocked(boolean locked) {
         this.locked = locked;
     }
@@ -25,4 +35,9 @@ public class Room {
     public String getName() {
         return this.name;
     }
+
+    public void setHelpText(String text) {
+        this.helpText = text;
+    }
+
 }
