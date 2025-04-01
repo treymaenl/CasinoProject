@@ -52,6 +52,7 @@ public class Room {
     }
 
     public String enter() {
+        this.visited = true;
         return this.entryText;
     }
 

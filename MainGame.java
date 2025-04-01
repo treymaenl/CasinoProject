@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 public class MainGame {
     static Player gambler;
-    static Room Bar = new Room("Bar"), GameRoom = new Room("Game Room"), Vip = new Room("VIP", true);
     public static ArrayList<Room> rooms = new ArrayList<>();
     static boolean tutorial = false;
     static String generalHelp = """
@@ -34,7 +33,7 @@ public class MainGame {
             while (reader.hasNextLine()) {
                 String line = reader.nextLine();
                 if (line.equals("end")) {
-                    System.out.println("Rooms loaded succesfully\n");
+                    System.out.println("Rooms loaded succesfully");
                     break;
                 }
                 String marker = "";
@@ -139,6 +138,7 @@ public class MainGame {
                     int choice = yesOrNo(user);
                     if (choice == 1) {
                         System.out.println("Great let's begin at the bar!");
+                        System.out.println(gambler.inRoom.enter());
                         break;
                     } else {
                         System.out.println("...");
@@ -310,6 +310,7 @@ public class MainGame {
                 }
                 gambler.inRoom = room;
                 System.out.println("Moved to: " + room.name);
+                System.out.println(room.enter());
                 return true;
             }
         }
