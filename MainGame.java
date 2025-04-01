@@ -1,32 +1,93 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MainGame {
     static Player gambler;
     static Room Bar = new Room("Bar"), GameRoom = new Room("Game Room"), Vip = new Room("VIP", true);
-    public static Room[] rooms = {Bar, GameRoom, Vip};
+    public static ArrayList<Room> rooms = new ArrayList<>();
     static boolean tutorial = false;
     static String generalHelp = """
                                     "me" - show your information
-                                    "exit" - prompt you to exit the game
+                                    "quit" - prompt you to quit the game
                                     "restart" - prompt you to restart the game
                                     "move" - prompt you to move rooms
                                     "save" - save the game
                                     "room help" - show room specific help
                                     "all help" - show all command options""";
 
-    private static void setupGame() {
-        
+    private static void setupGame() throws FileNotFoundException {
+        File roomData = new File("Rooms.txt");
+        if (!roomData.exists()) {
+            throw new FileNotFoundException("Rooms.txt file not found! Please find and download it.");
+        }
+        roomFromFile(roomData);
+    }
+
+    private static void roomFromFile(File roomData) {
+        try (Scanner reader = new Scanner(roomData)) {
+            boolean r = false, e = false, h = false;
+            String roomName = "", entryText = "", helpText = "";
+            while (reader.hasNextLine()) {
+                String line = reader.nextLine();
+                if (line.equals("end")) {
+                    System.out.println("Rooms loaded succesfully\n");
+                    break;
+                }
+                String marker = "";
+                if (line.trim().isBlank()) {
+                    continue;
+                } else if (line.length() >= 3) {
+                    marker = line.substring(0, 3);
+                } else {
+                    throw new Exception("Issue with Rooms.txt");
+                }
+
+                if (marker.equals("<r>")) {
+                    roomName = line.substring(3, line.length());
+                    r = true;
+                } else if (marker.equals("<e>")) {
+                    entryText = line.substring(3, line.length());
+                    e = true;
+                } else if (marker.equals("<h>")) {
+                    StringBuilder roomHelp = new StringBuilder("");
+                    while (true) {
+                        line = reader.nextLine();
+                        if (line.equals("</h>")) {
+                            break;
+                        }
+                        roomHelp.append(line + "\n");
+                    }
+                    helpText = roomHelp.toString();
+                    h = true;
+                }
+                if (r & e & h) {
+                    Room currentRoom = new Room(roomName, entryText, helpText);
+                    rooms.add(currentRoom);
+                    r = e = h = false;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
     }
 
     public static void main(String[] args) {
         File saveFile = new File("save.txt");
         Scanner in = new Scanner(System.in);
-        MainGame game = new MainGame();
 
-        setupGame();
+        try {
+            setupGame();
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
 
         try {
             if (!saveFile.exists()) {
@@ -68,7 +129,7 @@ public class MainGame {
                                     "Here are some important commands that you will be using to play the game:");
                 System.out.println(generalHelp);
                 System.out.println("You can see commands at any point by typing \"help\" or \"?\"");
-                System.out.printf("Type anything to continue: ");
+                System.out.printf("Hit ENTER to continue: ");
                 user = in.nextLine();
                 System.out.println("\n\nIn a moment you will see your name appear in the console, it will appear as \n\nYOURNAME:\n\n" +
                                     "When this is on the screen you are able to type any command to play.");
@@ -142,9 +203,9 @@ public class MainGame {
                     }
                 }
 
-            } else if (user.equalsIgnoreCase("exit")) {
+            } else if (user.equalsIgnoreCase("quit")) {
                 while (true) {
-                    System.out.printf("Are you sure you want to exit: y/n: ");
+                    System.out.printf("Are you sure you want to quit: y/n: ");
                     user = in.nextLine();
                     int choice = yesOrNo(user);
                     if (choice == 1) {

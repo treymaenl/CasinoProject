@@ -1,0 +1,21 @@
+<r>Bar
+<e>entry text
+<h>
+room help
+more help
+still more help
+</h>
+
+<r>Game Room
+<e>entry text
+<h>
+room help
+</h>
+
+<r>VIP
+<e>entry text
+<h>
+room help
+</h>
+
+end

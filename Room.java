@@ -3,32 +3,43 @@ public class Room {
     String entryText;
     String helpText;
     boolean locked;
+    boolean visited;
 
     Room(String name) {
         this.name = name;
         this.locked = false;
+        this.visited = false;
     }
 
     Room(String name, boolean locked) {
         this.name = name;
         this.locked = locked;
+        this.visited = false;
     }
 
-    Room(String name, boolean locked, String helpText) {
+    Room(String name, boolean locked, boolean visited) {
         this.name = name;
         this.locked = locked;
-        this.helpText = helpText;
+        this.visited = visited;
     }
 
-    boolean isLocked() {
+    Room(String name, String entryText, String helpText) {
+        this.name = name;
+        this.entryText = entryText;
+        this.helpText = helpText;
+        this.locked = false;
+        this.visited = false;
+    }
+
+    public boolean isLocked() {
         return this.locked;
     }
 
-    void setLocked(boolean locked) {
+    public void setLocked(boolean locked) {
         this.locked = locked;
     }
 
-    String getHelp() {
+    public String getHelp() {
         return helpText;
     }
 
@@ -42,6 +53,18 @@ public class Room {
 
     public String enter() {
         return this.entryText;
+    }
+
+    public void setEntryText(String entryText) {
+        this.entryText = entryText;
+    }
+
+    public boolean visited() {
+        return this.visited;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
     }
 
 }
