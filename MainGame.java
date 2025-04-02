@@ -131,18 +131,7 @@ public class MainGame {
         rooms.get(2).setLocked(true);
     }
 
-    public static void main(String[] args) throws FileNotFoundException {
-        // looking for existing save file
-        File saveFile = new File("save.txt");
-        Scanner in = new Scanner(System.in);
-
-        try {
-            setupGame();
-        } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
-            System.exit(0);
-        }
-
+    public static void deleteBadSave(File saveFile) throws FileNotFoundException {
         // deleting bad saves
         if (saveFile.exists()) {
 
@@ -171,7 +160,9 @@ public class MainGame {
                 }
             }
         }
+    }
 
+    public static void start(File saveFile, Scanner in) {
         // Starting or loading game
         try {
             // No prior save
@@ -217,272 +208,143 @@ public class MainGame {
             System.out.println("An error occurred while handling the save file.");
             e.printStackTrace();
         }
+    }
+
+    public static void tutorial(Scanner in) {
+        String user;
+        while (tutorial) { 
+            System.out.printf("\nWould you like a tutorial? y/n: ");
+            user = in.nextLine();
+            int choice = yesOrNo(user);
+            if (choice == 1) {
+                break;
+            } else if (choice == 0) {
+                System.out.println("\nNo tutorial it is then! Type \"?\" or \"help\" if you get stuck!");
+                tutorial = false;
+                break;
+            }
+        }
+        if (tutorial) {
+            System.out.println("Very well then!\nTUTORIAL\n" +
+                                "Here are some important commands that you will be using to play the game:");
+            System.out.println(generalHelp);
+            System.out.println("You can see commands at any point by typing \"help\" or \"?\"");
+            System.out.printf("Hit ENTER to continue: ");
+            user = in.nextLine();
+            System.out.println("\n\nIn a moment you will see your name appear in the console, it will appear as \n\nYOURNAME:\n\n" +
+                                "When your name is on the screen you are able to type any command to play.");
+            while (true) {
+                System.out.printf("Hit ENTER to continue to game: ");
+                user = in.nextLine();
+                System.out.println("\n\nGreat let's begin!");
+                System.out.println(gambler.inRoom.enter());
+                break;
+            }
+            tutorial = false;
+        }
+    }
+
+    public static void main(String[] args) throws FileNotFoundException {
+        // looking for existing save file
+        File saveFile = new File("save.txt");
+        Scanner in = new Scanner(System.in);
+
+        try {
+            setupGame();
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
+
+        deleteBadSave(saveFile);
+
+        start(saveFile, in);
 
         while (true) {
             String user;
 
-            while (tutorial) { 
-                System.out.printf("\nWould you like a tutorial? y/n: ");
-                user = in.nextLine();
-                int choice = yesOrNo(user);
-                if (choice == 1) {
-                    break;
-                } else if (choice == 0) {
-                    System.out.println("\nNo tutorial it is then! Type \"?\" or \"help\" if you get stuck!");
-                    tutorial = false;
-                    break;
-                }
-            }
             if (tutorial) {
-                System.out.println("Very well then!\nTUTORIAL\n" +
-                                    "Here are some important commands that you will be using to play the game:");
-                System.out.println(generalHelp);
-                System.out.println("You can see commands at any point by typing \"help\" or \"?\"");
-                System.out.printf("Hit ENTER to continue: ");
-                user = in.nextLine();
-                System.out.println("\n\nIn a moment you will see your name appear in the console, it will appear as \n\nYOURNAME:\n\n" +
-                                    "When your name is on the screen you are able to type any command to play.");
-                while (true) {
-                    System.out.printf("Hit ENTER to continue to game: ");
-                    user = in.nextLine();
-                    System.out.println("\n\nGreat let's begin!");
-                    System.out.println(gambler.inRoom.enter());
-                    break;
-                }
-                tutorial = false;
+                tutorial(in);
             }
 
             System.out.printf("\n" + gambler.getName().toUpperCase() + ": ");
             user = in.nextLine().trim();
 
-            // help command
-            if (user.equals("?") || user.equalsIgnoreCase("help")) {
-                System.out.println("General help:");
-                System.out.println(generalHelp);
-
-            // room command
-            } else if (user.equalsIgnoreCase("room")) {
-                System.out.println("\n" + gambler.inRoom.getName() + " options:");
-                System.out.println(gambler.inRoom.getHelp());
-
-            // all command
-            } else if (user.equalsIgnoreCase("all")) {
-                System.out.println(allHelp);
-
-            // move command
-            } else if (user.length() >= 4 && user.substring(0,4).equalsIgnoreCase("move")) {
-                String moveTo = "";
-                if (user.length() > 4) {
-                    moveTo = user.substring(5, user.length());
-                } else {
-                    System.out.println("\nWhich room would you like to move to?");
-                    for (Room room : rooms) {
-                        System.out.println("\s\s" + room.getName());
-                    }
-                }
-
-                int i = 0;
-                while (true) {
-                    if (moveTo == "" || i > 0) {
-                        System.out.printf("\nRoom choice: ");
-                        user = in.nextLine().toUpperCase();
-                    } else {
-                        user = moveTo;
-                        System.out.println();
-                    }
-                    i++;
-                    if (user.equalsIgnoreCase("game") || user.equals("gameroom")) {
-                        user = "game room";
-                    }
-                    boolean moved = updateRoom(user);
-                    if (moved) {
-                        break;
-                    } else {
-                        System.out.println("\nWhich room would you like to move to?");
-                        for (Room room : rooms) {
-                            System.out.println("\t" + room.getName());
-                        }
-                    }
-                }
-
-            // restart command
-            } else if (user.equalsIgnoreCase("restart")) {
-                while (true) {
-                    System.out.printf("Are you sure you want to restart, all progress will be deleted: y/n: ");
-                    user = in.nextLine();
-                    int choice = yesOrNo(user);
-                    if (choice == 1) {
-                        restart();
-                        System.exit(0);
-                    } else if (choice == 0) {
-                        System.out.println("Returning to game.");
-                        break;
-                    }
-                }
-
-            // quit command
-            } else if (user.equalsIgnoreCase("quit")) {
-                while (true) {
-                    System.out.printf("Are you sure you want to quit: y/n: ");
-                    user = in.nextLine();
-                    int choice = yesOrNo(user);
-                    if (choice == 1) {
-                        saveGame(true);
-                        System.out.println("Quitting...");
-                        System.exit(0);
-                    } else if (choice == 0) {
-                        System.out.println("Returning to game.");
-                        break;
-                    }
-                }
-
-            // save command
-            } else if (user.equalsIgnoreCase("save")) {
-                saveGame(true);
-
-            // easter egg command
-            } else if (user.equalsIgnoreCase("hello?")) {
-                System.out.println("Hi :)");
-
-            // tutorial command
-            } else if (user.equals("tutorial")) {
-                tutorial = true;
-
-            // me command
-            } else if (user.equalsIgnoreCase("me")) {
-                System.out.println("\nYOUR INFORMATION:" +
-                                "\n\s\sName: " + gambler.getName() + 
-                                "\n\s\sBalance: $" + gambler.getBalance() +
-                                "\n\s\sIn room: " + gambler.inRoom.getName());
-                if (!rooms.get(2).isLocked()) {
-                    System.out.println("\s\sVIP Member!");
-                } else {
-                    System.out.println("\s\sStandard Customer");
-                }
-
-            // give lots of money command
-            } else if (user.equals("BigMoneyCheddar")) {
-                gambler.updateBalance(10000000);
-                System.out.println("nice.");
-
-            // bar order command
-            } else if (gambler.inRoom == rooms.get(0) && user.equalsIgnoreCase("order")) {
-                System.out.println("\nBARTENDER: What would you like?");
-                System.out.println("""
-                                Menu options:
-                                \s\sDrinks
-                                \s\sFood 
-                                """);
-                while (true) {
-                    System.out.printf("Menu: ");
-                    String menu = in.nextLine().trim();
-                    if (menu.equalsIgnoreCase("drinks")) {
-                        System.out.println("""
-                                        \s\sDRINKS:
-                                        \s\s1. "Dasani" - $25
-                                        \s\s2. "Tropical Smoothie" - $100
-                                        \s\s3. "Purified Mercury" - $1000
-                                        """);
-                    } else if (menu.equalsIgnoreCase("food")) {
-                        System.out.println("""
-                                        \s\sFOOD:
-                                        \s\s1. "Slop" - $150
-                                        \s\s2. "Crustless Greek Zucchini Pie" - $750
-                                        \s\s3. "Golden Donut" - $3500
-                                        """);
-                    } else {
-                        System.out.println("Invalid option.\n");
-                        continue;
-                    }
-                    System.out.println("Current Balance: $" + gambler.getBalance());
-                    boolean choosing = true;
-                    while (choosing) { 
-                        System.out.printf("Order: ");
-                        String choice = in.nextLine().trim();
-                        System.out.println();
-                        switch(choice) {
-                            case "1":
-                                if (menu.equalsIgnoreCase("drinks")) {
-                                    gambler.updateBalance(-25);
-                                    System.out.println("Dasani purchased!\nYou're thirstier than before.\nNew Balance: $" + gambler.getBalance());
-                                } else {
-                                    gambler.updateBalance(-150);
-                                    System.out.println("Slop purchased!\nYou feel slightly nauseous.\nNew Balance $" + gambler.getBalance());
-                                }
-                                choosing = false;
-                                break;
-                            case "2":
-                                if (menu.equalsIgnoreCase("drinks")) {
-                                    gambler.updateBalance(-100);
-                                    System.out.println("Tropical Smoothie purchased!\nIt is somewhat chunky, but refreshing!\nNew Balance: $" + gambler.getBalance());
-                                } else {
-                                    gambler.updateBalance(-750);
-                                    System.out.println("Crustless Greek Zucchini Pie purchased!\nVery facny, thankfully you only have a minor zucchini alergy!\nNew Balance $" + gambler.getBalance());
-                                }
-                                choosing = false;
-                                break;
-                            case "3":
-                                if (menu.equalsIgnoreCase("drinks")) {
-                                    gambler.updateBalance(-1000);
-                                    System.out.println("Purified Mercury purchased!\nThe pure euphoria of spending $1000 masks the horrible taste.\nNew Balance: $" + gambler.getBalance());
-                                } else {
-                                    gambler.updateBalance(-3500);
-                                    System.out.println("Golden Donut purchased!\nYou are unable to bite into the pure metal donut, but everyone envies you.\nNew Balance $" + gambler.getBalance());
-                                }
-                                choosing = false;
-                                break;
-                            default:
-                                System.out.println("Invalid choice.");
-                        }
-                    }
-                    if (!choosing) {
-                        choosing = true;
-                        break;
-                    }
-                }
-
-            // give vip command
-            } else if (user.equalsIgnoreCase("GIVEMEVIP")) {
-                rooms.get(2).setLocked(false);
-                System.out.println("WOO! VIP!");
-
-            // bartender talk command
-            } else if (gambler.inRoom == rooms.get(0) && user.equalsIgnoreCase("talk")) {
-                System.out.printf("\nBARTENDER: ");
-
-                Random random = new SecureRandom();
-                int line = random.nextInt(bartenderStandard.length);
-                while (line == barLastTalk) {
-                    line = random.nextInt(bartenderStandard.length);
-                }
-
-                if (line == 4) {
-                    int rare = 1;
-                    while (rare < 3) {
-                        line = random.nextInt(bartenderStandard.length);
-                        if (line == 4) {
-                            rare++;
-                        } else {
-                            break;
-                        }
-                    }
-                }
-
-                String bartender = bartenderStandard[line];
-                System.out.println(bartender);
-                barLastTalk = line;
-
-            // mocking command
-            } else if (user.equals("Huh?")) {
-                System.out.println("\nBARTENDER: Are we gonna have a problem?");
-
-            // not valid command
-            } else {
-                if (gambler.inRoom == rooms.get(0)) {
-                    System.out.println("\nBARTENDER: Huh?");
-                }
-            }
+            handleCommand(user, in);
         }
+    }
+
+    public static void handleCommand(String user, Scanner in) {
+        // help command
+        if (user.equals("?") || user.equalsIgnoreCase("help")) {
+            help();
+
+        // room command
+        } else if (user.equalsIgnoreCase("room")) {
+            room();
+
+        // all command
+        } else if (user.equalsIgnoreCase("all")) {
+            System.out.println(allHelp);
+
+        // move command
+        } else if (user.length() >= 4 && user.substring(0,4).equalsIgnoreCase("move")) {
+            move(user, in);
+
+        // restart command
+        } else if (user.equalsIgnoreCase("restart")) {
+            restart(in);
+
+        // quit command
+        } else if (user.equalsIgnoreCase("quit")) {
+            quit(in);
+
+        // save command
+        } else if (user.equalsIgnoreCase("save")) {
+            saveGame(true);
+
+        // easter egg command
+        } else if (user.equalsIgnoreCase("hello?")) {
+            System.out.println("Hi :)");
+
+        // tutorial command
+        } else if (user.equals("tutorial")) {
+            tutorial = true;
+
+        // me command
+        } else if (user.equalsIgnoreCase("me")) {
+            me();
+
+        // give lots of money command
+        } else if (user.equals("BigMoneyCheddar")) {
+            gambler.updateBalance(10000000);
+            System.out.println("nice.");
+
+        // bar order command
+        } else if (gambler.inRoom == rooms.get(0) && user.equalsIgnoreCase("order")) {
+            orderBar(in);
+
+        // give vip command
+        } else if (user.equalsIgnoreCase("GIVEMEVIP")) {
+            rooms.get(2).setLocked(false);
+            System.out.println("WOO! VIP!");
+
+        // bartender talk command
+        } else if (gambler.inRoom == rooms.get(0) && user.equalsIgnoreCase("talk")) {
+            talk();
+
+        // mocking command
+        } else if (user.equals("Huh?")) {
+            System.out.println("\nBARTENDER: Are we gonna have a problem?");
+
+        // not valid command
+        } else {
+            if (gambler.inRoom == rooms.get(0)) {
+                System.out.println("\nBARTENDER: Huh?");
+            }
+            System.out.println("Unrecognized Command");
+        }
+
     }
 
     // for handling asking player yes or no
@@ -501,15 +363,42 @@ public class MainGame {
         }
     }
 
-    // for restarting game
-    static void restart() {
-        File delete = new File("save.txt");
+    private static void quit(Scanner in) {
+        String user;
+        while (true) {
+            System.out.printf("Are you sure you want to quit: y/n: ");
+            user = in.nextLine();
+            int choice = yesOrNo(user);
+            if (choice == 1) {
+                saveGame(true);
+                System.out.println("Quitting...");
+                in.close();
+                System.exit(0);
+            } else if (choice == 0) {
+                System.out.println("Returning to game.");
+                break;
+            }
+        }
+    }
 
-        // Deleting old save
-        if (delete.delete()) {
-            System.out.println("Old save deleted, restart game to begin fresh.");
-        } else {
-            System.out.println("Nothing to restart!");
+    // for restarting game
+    static void restart(Scanner in) {
+        File delete = new File("save.txt");
+        String user;
+        while (true) {
+            System.out.printf("Are you sure you want to restart, all progress will be deleted: y/n: ");
+            user = in.nextLine();
+            int choice = yesOrNo(user);
+            if (choice == 1) {
+                System.out.println("Deleting old save...");
+                delete.delete();
+                System.out.println("Quitting...");
+                in.close();
+                System.exit(0);
+            } else if (choice == 0) {
+                System.out.println("Returning to game.");
+                break;
+            }
         }
     }
 
@@ -593,4 +482,185 @@ public class MainGame {
         System.out.println("Room not found.");
         return false;
     }
+
+    private static void help() {
+        System.out.println("General help:");
+        System.out.println(generalHelp);
+    }
+
+    private static void room() {
+        System.out.println("\n" + gambler.inRoom.getName() + " options:");
+        System.out.println(gambler.inRoom.getHelp());
+    }
+
+    private static void move(String user, Scanner in) {
+        String moveTo = "";
+            if (user.length() > 4) {
+                moveTo = user.substring(4, user.length()).trim();
+                System.out.println(moveTo);
+            } else {
+                System.out.println("\nWhich room would you like to move to?");
+                for (Room room : rooms) {
+                    System.out.println("\s\s" + room.getName());
+                }
+            }
+            int i = 0;
+            while (true) {
+                if (moveTo == "" || i > 0) {
+                    System.out.printf("\nRoom choice: ");
+                    user = in.nextLine().toUpperCase();
+                } else {
+                    user = moveTo;
+                    System.out.println();
+                }
+                i++;
+                if (user.equalsIgnoreCase("game") || user.equalsIgnoreCase("gameroom")) {
+                    user = "game room";
+                }
+                boolean moved = updateRoom(user);
+                if (moved) {
+                    break;
+                } else {
+                    System.out.println("\nWhich room would you like to move to?");
+                    for (Room room : rooms) {
+                        System.out.println("\t" + room.getName());
+                    }
+                }
+            }
+    }
+
+    private static void me() {
+        System.out.println("\nYOUR INFORMATION:" +
+                        "\n\s\sName: " + gambler.getName() + 
+                        "\n\s\sBalance: $" + gambler.getBalance() +
+                        "\n\s\sIn room: " + gambler.inRoom.getName());
+        if (!rooms.get(2).isLocked()) {
+            System.out.println("\s\sVIP Member!");
+        } else {
+            System.out.println("\s\sStandard Customer");
+        }
+    }
+
+    private static void talk() {
+        System.out.printf("\nBARTENDER: ");
+
+            Random random = new SecureRandom();
+            int line = random.nextInt(bartenderStandard.length);
+            while (line == barLastTalk) {
+                line = random.nextInt(bartenderStandard.length);
+            }
+
+            if (line == 4) {
+                int rare = 1;
+                while (rare < 3) {
+                    line = random.nextInt(bartenderStandard.length);
+                    if (line == 4) {
+                        rare++;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            String bartender = bartenderStandard[line];
+            System.out.println(bartender);
+            barLastTalk = line;
+    }
+
+    private static void orderBar(Scanner in) {
+        System.out.println("\nBARTENDER: What would you like?");
+        System.out.println("""
+                        Menu options:
+                        \s\sDrinks
+                        \s\sFood 
+                        """);
+            while (true) {
+                System.out.printf("Menu: ");
+                String menu = in.nextLine().trim();
+                if (menu.equalsIgnoreCase("exit")) {
+                    System.out.println("\nBARTENDER: Thanks for wasting my time.");
+                    return;
+                }
+                int menuNum = 0;
+                boolean valid = barMenu(menuNum, menu);
+                if (!valid) {
+                    continue;
+                }
+                System.out.println("Current Balance: $" + gambler.getBalance());
+                boolean choosing = true;
+                while (choosing) { 
+                    choosing = barMenuOptions(menuNum, in);
+                }
+                return;
+            }
+    }
+
+    private static boolean barMenu(int menuNum, String menu) {
+        if (menu.equalsIgnoreCase("drinks")) {
+            System.out.println("""
+                            \s\sDRINKS:
+                            \s\s1. "Dasani" - $25
+                            \s\s2. "Tropical Smoothie" - $100
+                            \s\s3. "Purified Mercury" - $1000
+                            """);
+            menuNum = 1;
+        } else if (menu.equalsIgnoreCase("food")) {
+            System.out.println("""
+                            \s\sFOOD:
+                            \s\s1. "Slop" - $150
+                            \s\s2. "Crustless Greek Zucchini Pie" - $750
+                            \s\s3. "Golden Donut" - $3500
+                            """);
+            menuNum = 2;
+        } else {
+            System.out.println("OPTIONS" +
+                                "\n\s\s\"drinks\", \"food\", \"exit\"\n");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static boolean barMenuOptions(int menu, Scanner in) {
+        System.out.printf("Order: ");
+        String choice = in.nextLine().trim();
+        if (choice.equalsIgnoreCase("exit")) {
+            System.out.println("\nBARTENDER: Thanks for wasting my time.");
+            return false;
+        }
+        System.out.println();
+        switch(choice) {
+            case "1":
+                if (menu == 1) {
+                    gambler.updateBalance(-25);
+                    System.out.println("Dasani purchased!\nYou're thirstier than before.\nNew Balance: $" + gambler.getBalance());
+                } else {
+                    gambler.updateBalance(-150);
+                    System.out.println("Slop purchased!\nYou feel slightly nauseous.\nNew Balance $" + gambler.getBalance());
+                }
+                return false;
+            case "2":
+                if (menu == 1) {
+                    gambler.updateBalance(-100);
+                    System.out.println("Tropical Smoothie purchased!\nIt is somewhat chunky, but refreshing!\nNew Balance: $" + gambler.getBalance());
+                } else {
+                    gambler.updateBalance(-750);
+                    System.out.println("Crustless Greek Zucchini Pie purchased!\nVery facny, thankfully you only have a minor zucchini alergy!\nNew Balance $" + gambler.getBalance());
+                }
+                return false;
+            case "3":
+                if (menu == 1) {
+                    gambler.updateBalance(-1000);
+                    System.out.println("Purified Mercury purchased!\nThe pure euphoria of spending $1000 masks the horrible taste.\nNew Balance: $" + gambler.getBalance());
+                } else {
+                    gambler.updateBalance(-3500);
+                    System.out.println("Golden Donut purchased!\nYou are unable to bite into the pure metal donut, but everyone envies you.\nNew Balance $" + gambler.getBalance());
+                }
+                return false;
+            default:
+                System.out.println("OPTIONS\n\s\s\"1\", \"2\", \"3\", \"exit\"\n");
+                return true;
+        }
+    }
+
 }
