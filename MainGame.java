@@ -255,17 +255,21 @@ public class MainGame {
             System.out.printf("\n" + gambler.getName().toUpperCase() + ": ");
             user = in.nextLine().trim();
 
+            // help command
             if (user.equals("?") || user.equalsIgnoreCase("help")) {
                 System.out.println("General help:");
                 System.out.println(generalHelp);
 
+            // room command
             } else if (user.equalsIgnoreCase("room")) {
                 System.out.println("\n" + gambler.inRoom.getName() + " options:");
                 System.out.println(gambler.inRoom.getHelp());
 
+            // all command
             } else if (user.equalsIgnoreCase("all")) {
                 System.out.println(allHelp);
 
+            // move command
             } else if (user.length() >= 4 && user.substring(0,4).equalsIgnoreCase("move")) {
                 String moveTo = "";
                 if (user.length() > 4) {
@@ -301,7 +305,7 @@ public class MainGame {
                     }
                 }
 
-
+            // restart command
             } else if (user.equalsIgnoreCase("restart")) {
                 while (true) {
                     System.out.printf("Are you sure you want to restart, all progress will be deleted: y/n: ");
@@ -316,6 +320,7 @@ public class MainGame {
                     }
                 }
 
+            // quit command
             } else if (user.equalsIgnoreCase("quit")) {
                 while (true) {
                     System.out.printf("Are you sure you want to quit: y/n: ");
@@ -331,15 +336,19 @@ public class MainGame {
                     }
                 }
 
+            // save command
             } else if (user.equalsIgnoreCase("save")) {
                 saveGame(true);
 
+            // easter egg command
             } else if (user.equalsIgnoreCase("hello?")) {
                 System.out.println("Hi :)");
 
+            // tutorial command
             } else if (user.equals("tutorial")) {
                 tutorial = true;
 
+            // me command
             } else if (user.equalsIgnoreCase("me")) {
                 System.out.println("\nYOUR INFORMATION:" +
                                 "\n\s\sName: " + gambler.getName() + 
@@ -351,10 +360,12 @@ public class MainGame {
                     System.out.println("\s\sStandard Customer");
                 }
 
+            // give lots of money command
             } else if (user.equals("BigMoneyCheddar")) {
                 gambler.updateBalance(10000000);
                 System.out.println("nice.");
 
+            // bar order command
             } else if (gambler.inRoom == rooms.get(0) && user.equalsIgnoreCase("order")) {
                 System.out.println("\nBARTENDER: What would you like?");
                 System.out.println("""
@@ -430,10 +441,12 @@ public class MainGame {
                     }
                 }
 
+            // give vip command
             } else if (user.equalsIgnoreCase("GIVEMEVIP")) {
                 rooms.get(2).setLocked(false);
                 System.out.println("WOO! VIP!");
 
+            // bartender talk command
             } else if (gambler.inRoom == rooms.get(0) && user.equalsIgnoreCase("talk")) {
                 System.out.printf("\nBARTENDER: ");
 
@@ -459,9 +472,11 @@ public class MainGame {
                 System.out.println(bartender);
                 barLastTalk = line;
 
+            // mocking command
             } else if (user.equals("Huh?")) {
                 System.out.println("\nBARTENDER: Are we gonna have a problem?");
 
+            // not valid command
             } else {
                 if (gambler.inRoom == rooms.get(0)) {
                     System.out.println("\nBARTENDER: Huh?");
@@ -470,8 +485,12 @@ public class MainGame {
         }
     }
 
+    // for handling asking player yes or no
+    // 1 for yes, 0 for no, -1 if neither
     static int yesOrNo(String user) {
         user = user.toUpperCase();
+        
+        // Handling "y" or "n"
         if (user.equals("Y")) {
             return 1;
         } else if (user.equals("N")) {
@@ -482,8 +501,11 @@ public class MainGame {
         }
     }
 
+    // for restarting game
     static void restart() {
         File delete = new File("save.txt");
+
+        // Deleting old save
         if (delete.delete()) {
             System.out.println("Old save deleted, restart game to begin fresh.");
         } else {
@@ -491,11 +513,13 @@ public class MainGame {
         }
     }
 
+    // for loading game
     static void loadGame() {
         // Using save file to load game
         File saveFile = new File("save.txt");
         try (Scanner reader = new Scanner(saveFile)) {
             if (saveFile.exists()) {
+                // Setting name, balance, room, VIP status, tutorial status
                 gambler = new Player(reader.nextLine());
                 gambler.setBalance(Integer.parseInt(reader.nextLine()));
                 String roomName = reader.nextLine();
@@ -506,6 +530,8 @@ public class MainGame {
                 }
                 rooms.get(2).setLocked(Boolean.parseBoolean(reader.nextLine()));
                 tutorial = Boolean.parseBoolean(reader.nextLine());
+
+                // Succesful game load
                 System.out.println("Game loaded. Welcome back, " + gambler.getName() + ".");
             } else {
                 System.out.println("Save file not found.");
@@ -516,13 +542,17 @@ public class MainGame {
         }
     }
 
+    // for saving game
     static void saveGame(boolean printSave) {
         try (FileWriter writer = new FileWriter("save.txt")) {
+            // Name, balance, room, VIP status, tutorial status
             writer.write(gambler.getName() + "\n");
             writer.write(gambler.getBalance() + "\n");
             writer.write(gambler.inRoom.getName() + "\n");
             writer.write(rooms.get(2).locked + "\n");
             writer.write(tutorial + "\n");
+
+            // Print save to terminal if wanted
             if (printSave) {
                 System.out.println("Game saved successfully.");
             }
@@ -532,24 +562,34 @@ public class MainGame {
         }
     }
 
+    // for moving rooms
     static boolean updateRoom(String newRoom) {
         Room from = gambler.inRoom;
         for (Room room : rooms) {
+            // Look for room
             if (room.name.equalsIgnoreCase(newRoom)) {
+
+                // Check if locked
                 if (room.locked) {
                     System.out.println("Room is locked!");
                     return true;
                 }
+
+                // Check if it's the current room
                 if (from == room) {
                     System.out.println("Staying in: " + room.getName());
                     return true;
                 }
+
+                // Moving room
                 gambler.inRoom = room;
                 System.out.println("Moved to: " + room.name);
                 System.out.println(room.enter());
                 return true;
             }
         }
+
+        // Invalid room
         System.out.println("Room not found.");
         return false;
     }
