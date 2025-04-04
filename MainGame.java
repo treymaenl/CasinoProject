@@ -25,10 +25,10 @@ import java.util.Scanner;
  * Version 1.0
  */
 public class MainGame {
-    static Player gambler;
+    private static Player gambler;
     public static ArrayList<Room> rooms = new ArrayList<>();
-    static boolean tutorial = false;
-    static String generalHelp = """
+    private static boolean tutorial = false;
+    private final static String generalHelp = """
                                     \s\s"room" - show room specific options
                                     \s\s"me" - show your information
                                     \s\s"quit" - prompt you to quit the game
@@ -36,7 +36,7 @@ public class MainGame {
                                     \s\s"move" - prompt you to move rooms
                                     \s\s"save" - save the game
                                     \s\s"all" - show all command options""";
-    static String allHelp = """
+    private final static String allHelp = """
                                     \s\s"room" - show room specific options
                                     \s\s"me" - show your information
                                     \s\s"quit" - prompt you to quit the game
@@ -46,13 +46,13 @@ public class MainGame {
                                     \s\s"all" - show all command options
                                     \s\s"tutorial" - go through tutorial again""";
 
-    static String[] bartenderStandard = {"Looking a little rough.", "Do I know you?", 
+    private final static String[] bartenderStandard = {"Looking a little rough.", "Do I know you?", 
                                         "Just order something and get out of here,  would ya?", 
                                         "Shouldn't you be gambling or eating slop?", 
                                         "There was a time in my life that I felt like it wasn't going to work out for me. You know that feeling? Like nothing is going your way? Whatever, as fate would have it I ended up where I belonged. Don't tell anyone, but I sneak a whole bottle of burboun each time we get our new stock in, haha. Tell anyone and you're dead.",
                                         "AH"};
-    static String[] bartenderVIP = {"Looking good!", "I knew the second you walked in that you'd beat the house!", "Way to go today boss!"};
-    static int barLastTalk = -1;
+    private final static String[] bartenderVIP = {"Looking good!", "I knew the second you walked in that you'd beat the house!", "Way to go today boss!"};
+    private static int barLastTalk = -1;
 
     /**
      * Sets up the game by reading room data from the "Rooms.txt" file
