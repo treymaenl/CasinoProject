@@ -7,6 +7,23 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
+/**
+ * The MainGame class initializes the game, reads room data from a file, and manages the game loop
+ * It contains utility methods for setting up rooms and frequently used strings
+ * 
+ * Features:
+ * - Reads room information from "Rooms.txt" to dynamically create game rooms
+ * - Handles errors related to missing or incorrectly formatted files
+ * - Contains the main method that runs the game loop
+ * - Stores commonly used strings to enhance code readability and maintainability
+ * 
+ * Usage:
+ * - Ensure that "Rooms.txt" is available and correctly formatted before running the game
+ * - Run the main method to start the game loop
+ * 
+ * Author: Group A
+ * Version 1.0
+ */
 public class MainGame {
     static Player gambler;
     public static ArrayList<Room> rooms = new ArrayList<>();
@@ -37,7 +54,12 @@ public class MainGame {
     static String[] bartenderVIP = {"Looking good!", "I knew the second you walked in that you'd beat the house!", "Way to go today boss!"};
     static int barLastTalk = -1;
 
-    // Some important information to have to start the game
+    /**
+     * Sets up the game by reading room data from the "Rooms.txt" file
+     * If the file is not found, an exception is thrown
+     * 
+     * @throws FileNotFoundException if the "Rooms.txt" file is missing
+     */
     private static void setupGame() throws FileNotFoundException {
         File roomData = new File("Rooms.txt");
         if (!roomData.exists()) {
@@ -46,7 +68,11 @@ public class MainGame {
         roomFromFile(roomData);
     }
 
-    // Creates rooms based on textfile, can add more rooms easier
+    /**
+     * Reads room data from a given file and creates Room objects based on its contents
+     * 
+     * @param roomData The file containing room information
+     */
     private static void roomFromFile(File roomData) {
         try (Scanner reader = new Scanner(roomData)) {
             // boolean for room name (r), entry text (e), and help text (h)
@@ -131,6 +157,9 @@ public class MainGame {
         rooms.get(2).setLocked(true);
     }
 
+    /**
+    * Main method that contains game loop
+    */
     public static void main(String[] args) throws FileNotFoundException {
         // looking for existing save file
         File saveFile = new File("save.txt");
