@@ -1,5 +1,0 @@
-Fletcher
-1000
-Bar
-true
-true
