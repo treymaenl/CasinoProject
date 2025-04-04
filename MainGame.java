@@ -158,6 +158,141 @@ public class MainGame {
     }
 
     /**
+     * Processes user input for yes/no questions
+     * Returns 1 for "yes", 0 for "no", and -1 for invalid input
+     * 
+     * @param user The user input string
+     * @return 1 if "Y", 0 if "N", -1 if invalid
+     */
+    static int yesOrNo(String user) {
+        user = user.toUpperCase();
+        
+        // Handling "y" or "n"
+        if (user.equals("Y")) {
+            return 1;
+        } else if (user.equals("N")) {
+            return 0;
+        } else {
+            System.out.println("Invalid choice.");
+            return -1;
+        }
+    }
+
+    /**
+     * Deletes the existing save file to restart the game
+     * If no save file exists, informs the player
+     */
+    static void restart() {
+        File delete = new File("save.txt");
+
+        // Deleting old save
+        if (delete.delete()) {
+            System.out.println("Old save deleted, restart game to begin fresh.");
+        } else {
+            System.out.println("Nothing to restart!");
+        }
+    }
+
+    /**
+     * Loads the game state from the "save.txt" file
+     * Restores player details such as name, balance, current room, VIP room lock status, and tutorial status
+     * If the save file does not exist or an error occurs, an appropriate message is displayed
+     */
+    static void loadGame() {
+        // Using save file to load game
+        File saveFile = new File("save.txt");
+        try (Scanner reader = new Scanner(saveFile)) {
+            if (saveFile.exists()) {
+                // Setting name, balance, room, VIP status, tutorial status
+                gambler = new Player(reader.nextLine());
+                gambler.setBalance(Integer.parseInt(reader.nextLine()));
+                String roomName = reader.nextLine();
+                for (Room room : rooms) {
+                    if (room.getName().equals(roomName)) {
+                        gambler.inRoom = room;
+                    }
+                }
+                rooms.get(2).setLocked(Boolean.parseBoolean(reader.nextLine()));
+                tutorial = Boolean.parseBoolean(reader.nextLine());
+
+                // Succesful game load
+                System.out.println("Game loaded. Welcome back, " + gambler.getName() + ".");
+            } else {
+                System.out.println("Save file not found.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred while loading the game.");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Saves the current game state to the "save.txt" file
+     * Stores player details including name, balance, current room, VIP lock status, and tutorial status
+     * Optionally prints a confirmation message
+     * 
+     * @param printSave If true, prints a success message to the console
+     */
+    static void saveGame(boolean printSave) {
+        try (FileWriter writer = new FileWriter("save.txt")) {
+            // Name, balance, room, VIP status, tutorial status
+            writer.write(gambler.getName() + "\n");
+            writer.write(gambler.getBalance() + "\n");
+            writer.write(gambler.inRoom.getName() + "\n");
+            writer.write(rooms.get(2).locked + "\n");
+            writer.write(tutorial + "\n");
+
+            // Print save to terminal if wanted
+            if (printSave) {
+                System.out.println("Game saved successfully.");
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving the game.");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Attempts to move the player to a new room
+     * Checks if the target room exists, if it is locked, and if the player is already there
+     * If the transition is successful, updates the player's current room and displays the entry text
+     * 
+     * @param newRoom The name of the room the player wants to move to
+     * @return true if the move is successful or if an invalid action was attempted (staying in the same room or entering a locked room)
+     *         Returns false if the room does not exist
+     */
+    static boolean updateRoom(String newRoom) {
+        Room from = gambler.inRoom;
+        for (Room room : rooms) {
+            // Look for room
+            if (room.name.equalsIgnoreCase(newRoom)) {
+
+                // Check if locked
+                if (room.locked) {
+                    System.out.println("Room is locked!");
+                    return true;
+                }
+
+                // Check if it's the current room
+                if (from == room) {
+                    System.out.println("Staying in: " + room.getName());
+                    return true;
+                }
+
+                // Moving room
+                gambler.inRoom = room;
+                System.out.println("Moved to: " + room.name);
+                System.out.println(room.enter());
+                return true;
+            }
+        }
+
+        // Invalid room
+        System.out.println("Room not found.");
+        return false;
+    }
+
+    /**
     * Main method that contains game loop
     */
     public static void main(String[] args) throws FileNotFoundException {
@@ -512,114 +647,5 @@ public class MainGame {
                 }
             }
         }
-    }
-
-    // for handling asking player yes or no
-    // 1 for yes, 0 for no, -1 if neither
-    static int yesOrNo(String user) {
-        user = user.toUpperCase();
-        
-        // Handling "y" or "n"
-        if (user.equals("Y")) {
-            return 1;
-        } else if (user.equals("N")) {
-            return 0;
-        } else {
-            System.out.println("Invalid choice.");
-            return -1;
-        }
-    }
-
-    // for restarting game
-    static void restart() {
-        File delete = new File("save.txt");
-
-        // Deleting old save
-        if (delete.delete()) {
-            System.out.println("Old save deleted, restart game to begin fresh.");
-        } else {
-            System.out.println("Nothing to restart!");
-        }
-    }
-
-    // for loading game
-    static void loadGame() {
-        // Using save file to load game
-        File saveFile = new File("save.txt");
-        try (Scanner reader = new Scanner(saveFile)) {
-            if (saveFile.exists()) {
-                // Setting name, balance, room, VIP status, tutorial status
-                gambler = new Player(reader.nextLine());
-                gambler.setBalance(Integer.parseInt(reader.nextLine()));
-                String roomName = reader.nextLine();
-                for (Room room : rooms) {
-                    if (room.getName().equals(roomName)) {
-                        gambler.inRoom = room;
-                    }
-                }
-                rooms.get(2).setLocked(Boolean.parseBoolean(reader.nextLine()));
-                tutorial = Boolean.parseBoolean(reader.nextLine());
-
-                // Succesful game load
-                System.out.println("Game loaded. Welcome back, " + gambler.getName() + ".");
-            } else {
-                System.out.println("Save file not found.");
-            }
-        } catch (IOException e) {
-            System.out.println("An error occurred while loading the game.");
-            e.printStackTrace();
-        }
-    }
-
-    // for saving game
-    static void saveGame(boolean printSave) {
-        try (FileWriter writer = new FileWriter("save.txt")) {
-            // Name, balance, room, VIP status, tutorial status
-            writer.write(gambler.getName() + "\n");
-            writer.write(gambler.getBalance() + "\n");
-            writer.write(gambler.inRoom.getName() + "\n");
-            writer.write(rooms.get(2).locked + "\n");
-            writer.write(tutorial + "\n");
-
-            // Print save to terminal if wanted
-            if (printSave) {
-                System.out.println("Game saved successfully.");
-            }
-        } catch (IOException e) {
-            System.out.println("Error saving the game.");
-            e.printStackTrace();
-        }
-    }
-
-    // for moving rooms
-    static boolean updateRoom(String newRoom) {
-        Room from = gambler.inRoom;
-        for (Room room : rooms) {
-            // Look for room
-            if (room.name.equalsIgnoreCase(newRoom)) {
-
-                // Check if locked
-                if (room.locked) {
-                    System.out.println("Room is locked!");
-                    return true;
-                }
-
-                // Check if it's the current room
-                if (from == room) {
-                    System.out.println("Staying in: " + room.getName());
-                    return true;
-                }
-
-                // Moving room
-                gambler.inRoom = room;
-                System.out.println("Moved to: " + room.name);
-                System.out.println(room.enter());
-                return true;
-            }
-        }
-
-        // Invalid room
-        System.out.println("Room not found.");
-        return false;
     }
 }
