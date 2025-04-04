@@ -8,6 +8,9 @@
 *     Methods to get and set room attributes
 *     Track whether the room has already been visited
 *     Provide help text and entry text
+* 
+* @author Group A
+* @version 1.0
 */
 public class Room {
     String name;
