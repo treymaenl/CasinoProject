@@ -338,6 +338,21 @@ public class MainGame {
             System.out.println("\nBARTENDER: Are we gonna have a problem?");
 
         // not valid command
+        } else if (gambler.inRoom.getName().equalsIgnoreCase("Game Room") && user.equalsIgnoreCase("games")) {
+            System.out.println("""
+                Choose your game:
+                  1. Slots
+                  2. Roulette
+                  3. BlackJack
+                """);
+            System.out.print("Enter choice: ");
+            String choice = in.nextLine().trim();
+            switch (choice) {
+                case "1" -> new Slots().play(gambler);
+                case "2" -> new Roulette().play(gambler);
+                case "3" -> new BlackJack().play(gambler, in);
+                default -> System.out.println("Invalid choice.");
+            } 
         } else {
             if (gambler.inRoom == rooms.get(0)) {
                 System.out.println("\nBARTENDER: Huh?");
