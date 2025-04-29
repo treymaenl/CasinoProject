@@ -6,44 +6,102 @@ public class Roulette {
         Scanner in = new Scanner(System.in);
 
         while (true) {
+            int bet = getBet(player, in);
+            if (bet == -1) return;
+
+            do {
+                System.out.println("\nRoulette Board:");
+                System.out.println("""
+                  GREEN: 0
+                  RED: 1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36
+                  BLACK: 2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35
+                """);
+
+                System.out.print("Bet on color (red/black/green) or a number (0-36): ");
+                String choice = in.nextLine().trim().toLowerCase();
+
+                if (player.getBalance() < bet) {
+                    System.out.println("Insufficient balance.");
+                    break;
+                }
+
+                System.out.print("SPINNING");
+                for (int i = 0; i < 5; i++) {
+                    try {
+                        Thread.sleep(100);
+                        System.out.print(".");
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                System.out.println();
+
+                Random rand = new Random();
+                int result = rand.nextInt(37);
+                String color = getColor(result);
+                System.out.printf("Ball landed on %s %d%n", color.toUpperCase(), result);
+
+                boolean win = false;
+
+                if (choice.equals("red") || choice.equals("black") || choice.equals("green")) {
+                    win = choice.equals(color);
+                    if (win) {
+                        System.out.println("You win $" + (bet * 2));
+                        player.updateBalance(bet);
+                    } else {
+                        System.out.println("You lost $" + bet);
+                        player.updateBalance(-bet);
+                    }
+                } else {
+                    try {
+                        int guessed = Integer.parseInt(choice);
+                        if (guessed < 0 || guessed > 36) throw new NumberFormatException();
+                        if (guessed == result) {
+                            System.out.println("Exact match! You win $" + (bet * 35));
+                            player.updateBalance((35 * bet) - bet);
+                        } else {
+                            System.out.println("Wrong number. You lost $" + bet);
+                            player.updateBalance(-bet);
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid bet choice.");
+                        continue;
+                    }
+                }
+
+                player.showOffEarnings();
+            } while (playAgainPrompt(in));
+        }
+    }
+
+    private String getColor(int number) {
+        if (number == 0) return "green";
+        int[] redNums = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36};
+        for (int r : redNums) if (r == number) return "red";
+        return "black";
+    }
+
+    private int getBet(Player player, Scanner in) {
+        while (true) {
             System.out.println("\nCurrent Balance: $" + player.getBalance());
-            System.out.print("Enter bet amount (max $5000) or type \"exit\" to leave: ");
+            System.out.print("Enter bet amount (max $5000) or \"exit\": ");
             String input = in.nextLine().trim();
-
-            if (input.equalsIgnoreCase("exit")) {
-                System.out.println("Leaving roulette.");
-                return;
-            }
-
-            int bet;
+            if (input.equalsIgnoreCase("exit")) return -1;
             try {
-                bet = Integer.parseInt(input);
+                int bet = Integer.parseInt(input);
+                if (bet < 1 || bet > 5000 || bet > player.getBalance()) {
+                    System.out.println("Invalid or insufficient balance.");
+                } else {
+                    return bet;
+                }
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input.");
-                continue;
             }
-
-            if (bet < 1 || bet > 5000 || bet > player.getBalance()) {
-                System.out.println("Invalid bet or insufficient funds.");
-                continue;
-            }
-
-            System.out.println("SPINNING...");
-            Random rand = new Random();
-            int number = rand.nextInt(37);
-            String color = (number == 0) ? "Green" : (number % 2 == 0 ? "Black" : "Red");
-
-            System.out.printf("Landed on %s %d%n", color, number);
-
-            if (number == 7) {
-                System.out.println("Lucky 7! You win $" + (bet * 3) + "!");
-                player.updateBalance((bet * 3) - bet);
-            } else {
-                System.out.println("You lost $" + bet + ".");
-                player.updateBalance(-bet);
-            }
-
-            player.showOffEarnings();
         }
+    }
+
+    private boolean playAgainPrompt(Scanner in) {
+        System.out.print("Play again? (y/n): ");
+        return in.nextLine().trim().equalsIgnoreCase("y");
     }
 }

@@ -4,103 +4,145 @@ import java.util.Scanner;
 public class BlackJack {
     public void play(Player player, Scanner in) {
         while (true) {
-            System.out.println("\nCurrent Balance: $" + player.getBalance());
-            System.out.print("Enter bet amount (max $5000) or type \"exit\" to leave: ");
-            String input = in.nextLine().trim();
+            int bet = getBet(player, in);
+            if (bet == -1) return;
 
-            if (input.equalsIgnoreCase("exit")) {
-                System.out.println("Leaving BlackJack.");
-                return;
-            }
-
-            int bet;
-            try {
-                bet = Integer.parseInt(input);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input.");
-                continue;
-            }
-
-            if (bet < 1 || bet > 5000 || bet > player.getBalance()) {
-                System.out.println("Invalid bet or insufficient funds.");
-                continue;
-            }
-
-            CardDeck deck = new CardDeck();
-            ArrayList<Card> hand = new ArrayList<>();
-            ArrayList<Card> dealer = new ArrayList<>();
-
-            hand.add(deck.draw());
-            hand.add(deck.draw());
-            dealer.add(deck.draw());
-
-            int playerScore = sum(hand);
-            System.out.println("Your hand:");
-            hand.forEach(System.out::println);
-
-            System.out.println("Dealer shows: " + dealer.get(0));
-
-            while (true) {
-                System.out.print("Hit or Stand? ");
-                String choice = in.nextLine().trim();
-                if (choice.equalsIgnoreCase("hit")) {
-                    Card newCard = deck.draw();
-                    hand.add(newCard);
-                    playerScore += newCard.getPoints();
-                    System.out.println("You drew: " + newCard);
-                    if (playerScore > 21) {
-                        System.out.println("You busted! Lost $" + bet + ".");
-                        player.updateBalance(-bet);
-                        player.showOffEarnings();
-                        break;
-                    }
-                } else if (choice.equalsIgnoreCase("stand")) {
+            do {
+                if (player.getBalance() < bet) {
+                    System.out.println("Insufficient balance.");
                     break;
-                } else {
-                    System.out.println("Invalid choice.");
-                }
-            }
-
-            if (playerScore <= 21) {
-                dealer.add(deck.draw());
-                int dealerScore = sum(dealer);
-                while (dealerScore < 17) {
-                    Card c = deck.draw();
-                    dealer.add(c);
-                    dealerScore = sum(dealer);
                 }
 
-                System.out.println("Dealer's hand:");
-                dealer.forEach(System.out::println);
+                CardDeck deck = new CardDeck();
+                ArrayList<Card> playerHand = new ArrayList<>();
+                ArrayList<Card> dealerHand = new ArrayList<>();
 
-                System.out.printf("Your score: %d | Dealer score: %d%n", playerScore, dealerScore);
+                playerHand.add(deck.draw());
+                playerHand.add(deck.draw());
+                dealerHand.add(deck.draw());
 
-                if (dealerScore > 21 || playerScore > dealerScore) {
-                    System.out.println("You win $" + bet + "!");
-                    player.updateBalance(bet);
-                } else if (playerScore == dealerScore) {
-                    System.out.println("Push. No money gained or lost.");
-                } else {
-                    System.out.println("You lost $" + bet + ".");
-                    player.updateBalance(-bet);
+                int playerScore = calculateScore(playerHand);
+                System.out.println("\nYour hand:");
+                for (Card c : playerHand) {
+                    System.out.println("  " + c);
                 }
-                player.showOffEarnings();
-            }
+                System.out.println("Dealer shows: " + dealerHand.get(0));
+
+                // Player decision
+                while (true) {
+                    System.out.print("Hit(h) or Stand(s)? ");
+                    String choice = in.nextLine().trim().toLowerCase();
+
+                    if (choice.equals("h")) {
+                        Card newCard = deck.draw();
+                        playerHand.add(newCard);
+                        playerScore = calculateScore(playerHand);
+                        System.out.println("You drew: ");
+                        try {
+                            Thread.sleep(700);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                        System.out.println("  " + newCard);
+
+                        if (playerScore > 21) {
+                            System.out.println("You busted! Lost $" + bet);
+                            player.updateBalance(-bet);
+                            player.showOffEarnings();
+                            break;
+                        }
+                    } else if (choice.equals("s")) {
+                        break;
+                    } else {
+                        System.out.println("Invalid input. Type 'hit' or 'stand'.");
+                    }
+                }
+
+                // Dealer logic only runs if player didn't bust
+                if (playerScore <= 21) {
+                    dealerHand.add(deck.draw());
+                    int dealerScore = calculateScore(dealerHand);
+                    while (dealerScore < 17) {
+                        Card c = deck.draw();
+                        dealerHand.add(c);
+                        dealerScore = calculateScore(dealerHand);
+                    }
+
+                    System.out.println("\nDealer's hand:");
+                    int i = 0;
+                    for (Card c : dealerHand) {
+                        try {
+                            Thread.sleep(1000 + (i * 200));
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                        System.out.println("  " + c);
+                        i++;
+                    }
+
+                    System.out.printf("Your score: %d | Dealer score: %d%n", playerScore, dealerScore);
+
+                    if (dealerScore > 21 || playerScore > dealerScore) {
+                        System.out.println("You win $" + bet + "!");
+                        player.updateBalance(bet);
+                    } else if (playerScore == dealerScore) {
+                        System.out.println("Push. No money gained or lost.");
+                    } else {
+                        System.out.println("You lost $" + bet + ".");
+                        player.updateBalance(-bet);
+                    }
+
+                    player.showOffEarnings();
+                }
+            } while (playAgainPrompt(in));
         }
     }
 
-    private int sum(ArrayList<Card> cards) {
+    private int calculateScore(ArrayList<Card> hand) {
         int total = 0;
         int aceCount = 0;
-        for (Card c : cards) {
-            int pts = c.getPoints();
-            if (pts == 11) aceCount++;
-            total += pts;
+
+        for (Card c : hand) {
+            int val = c.getPoints();
+            if (val == 11) aceCount++;
+            total += val;
         }
+
+        // Adjust Aces if total is over 21
         while (total > 21 && aceCount > 0) {
             total -= 10;
             aceCount--;
         }
+
         return total;
+    }
+
+    private int getBet(Player player, Scanner in) {
+        while (true) {
+            System.out.println("\nCurrent Balance: $" + player.getBalance());
+            System.out.print("Enter bet amount (max $5000) or type 'exit': ");
+            String input = in.nextLine().trim();
+
+            if (input.equalsIgnoreCase("exit")) return -1;
+
+            try {
+                int bet = Integer.parseInt(input);
+                if (bet < 1 || bet > 5000) {
+                    System.out.println("Bet must be between 1 and 5000.");
+                } else if (bet > player.getBalance()) {
+                    System.out.println("You don't have enough balance.");
+                } else {
+                    return bet;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Enter a number or 'exit'.");
+            }
+        }
+    }
+
+    private boolean playAgainPrompt(Scanner in) {
+        System.out.print("Play again with same bet? (y/n): ");
+        String input = in.nextLine().trim().toLowerCase();
+        return input.equals("y");
     }
 }
