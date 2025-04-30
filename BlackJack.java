@@ -112,7 +112,7 @@ public class BlackJack {
 
                     player.showOffEarnings();
                 }
-            } while (playAgainPrompt(in));
+            } while (!playAgainPrompt(in));
         }
     }
 
@@ -181,6 +181,6 @@ public class BlackJack {
     private boolean playAgainPrompt(Scanner in) {
         System.out.print("Play again with same bet? (y/n): ");
         String input = in.nextLine().trim().toLowerCase();
-        return input.equals("y");
+        return input.equals("n");
     }
 }
