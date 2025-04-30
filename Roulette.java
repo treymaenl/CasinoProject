@@ -68,8 +68,10 @@ public class Roulette {
                 if (choice.equals("red") || choice.equals("black") || choice.equals("green")) {
                     win = choice.equals(color);
                     if (win) {
-                        System.out.println("You win $" + (bet * 2));
-                        player.updateBalance(bet);
+                        int mult = 2;
+                        if (color.equals("green")) mult = 100;
+                        System.out.println("You win $" + (bet * mult));
+                        player.updateBalance(bet * mult - bet);
                     } else {
                         System.out.println("You lost $" + bet);
                         player.updateBalance(-bet);
@@ -81,8 +83,10 @@ public class Roulette {
                         int guessed = Integer.parseInt(choice);
                         if (guessed < 0 || guessed > 36) throw new NumberFormatException();
                         if (guessed == result) {
-                            System.out.println("Exact match! You win $" + (bet * 35));
-                            player.updateBalance((35 * bet) - bet);
+                            int mult = 25;
+                            if (guessed == 0) mult = 100;
+                            System.out.println("Exact match! You win $" + (bet * mult));
+                            player.updateBalance((mult * bet) - bet);
                         } else {
                             System.out.println("Wrong number. You lost $" + bet);
                             player.updateBalance(-bet);
@@ -94,7 +98,7 @@ public class Roulette {
                 }
 
                 player.showOffEarnings();
-            } while (playAgainPrompt(in));
+            } while (!playAgainPrompt(in));
         }
     }
 
@@ -147,6 +151,6 @@ public class Roulette {
      */
     private boolean playAgainPrompt(Scanner in) {
         System.out.print("Play again? (y/n): ");
-        return in.nextLine().trim().equalsIgnoreCase("y");
+        return in.nextLine().trim().equalsIgnoreCase("n");
     }
 }
