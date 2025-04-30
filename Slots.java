@@ -1,7 +1,19 @@
 import java.util.Random;
 import java.util.Scanner;
 
+/**
+ * Represents a Slots game where a player can place bets and spin for winnings.
+ * Winnings are calculated based on matching numbers in the slot spin result.
+ */
 public class Slots {
+
+    /**
+     * Starts the Slots game loop for the specified player.
+     * The player chooses a bet amount and spins. The game continues
+     * until the player chooses to exit or runs out of balance.
+     *
+     * @param player the Player participating in the game
+     */
     public void play(Player player) {
         Scanner in = new Scanner(System.in);
         while (true) {
@@ -14,7 +26,7 @@ public class Slots {
                     break;
                 }
 
-                System.out.print("SPINNING");
+                System.out.print("\nSPINNING");
                 for (int i = 0; i < 3; i++) {
                     try {
                         Thread.sleep(100);
@@ -26,13 +38,17 @@ public class Slots {
                 System.out.println();
 
                 Random rand = new Random();
-                int a = rand.nextInt(5), b = rand.nextInt(5), c = rand.nextInt(5);
-                System.out.printf("[%d] [%d] [%d]%n", a, b, c);
+                int odds = 5;
+                int a = rand.nextInt(odds), b = rand.nextInt(odds), c = rand.nextInt(odds), d = rand.nextInt(odds);
+                System.out.printf("[%d] [%d] [%d] [%d]%n", a, b, c, d);
 
-                if (a == b && b == c) {
+                if (a == b && b == c && c == d) {
                     System.out.println("Jackpot! You win $" + (bet * 10));
                     player.updateBalance((bet * 10) - bet);
-                } else if (a == b || b == c || a == c) {
+                } else if ((a == b && b == c) || (b == c && c == d) || (a == b && b == d) || (a == c && c == d)) {
+                    System.out.println("3 in a row! You win $" + (bet * 3));
+                    player.updateBalance((bet * 3) - bet);
+                } else if (a == b || b == c || c == d) {
                     System.out.println("Nice! You win $" + (bet * 2));
                     player.updateBalance((bet * 2) - bet);
                 } else {
@@ -40,10 +56,18 @@ public class Slots {
                     player.updateBalance(-bet);
                 }
                 player.showOffEarnings();
-            } while (playAgainPrompt(in));
+            } while (!playAgainPrompt(in));
         }
     }
 
+    /**
+     * Prompts the player to select a bet amount.
+     * Options are $20, $50, or $100. Typing "exit" returns -1 to quit.
+     *
+     * @param player the Player placing the bet
+     * @param in the Scanner for user input
+     * @return the selected bet amount, or -1 if the player exits
+     */
     private int getBet(Player player, Scanner in) {
         while (true) {
             System.out.println("\nCurrent Balance: $" + player.getBalance());
@@ -68,9 +92,15 @@ public class Slots {
         }
     }
 
+    /**
+     * Asks the player whether they want to spin again.
+     *
+     * @param in the Scanner for user input
+     * @return true if the player chooses to continue, false otherwise
+     */
     private boolean playAgainPrompt(Scanner in) {
         System.out.print("Spin again? (y/n): ");
         String response = in.nextLine().trim();
-        return response.equalsIgnoreCase("y");
+        return response.equalsIgnoreCase("n");
     }
 }

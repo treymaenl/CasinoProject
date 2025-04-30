@@ -1,7 +1,25 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * A text-based Blackjack game implementation where a player plays against a dealer.
+ * 
+ * Rules and features:
+ * <ul>
+ *   <li>Aces count as 11, but convert to 1 if total exceeds 21.</li>
+ *   <li>Dealer hits until reaching a score of at least 17.</li>
+ *   <li>Player can bet up to $5000 per round.</li>
+ * </ul>
+ */
 public class BlackJack {
+
+    /**
+     * Starts a Blackjack game session for the given player.
+     * Continues until the player types "exit" or runs out of money.
+     *
+     * @param player the Player participating in the game
+     * @param in the Scanner used for input
+     */
     public void play(Player player, Scanner in) {
         while (true) {
             int bet = getBet(player, in);
@@ -28,7 +46,7 @@ public class BlackJack {
                 }
                 System.out.println("Dealer shows: " + dealerHand.get(0));
 
-                // Player decision
+                // Player decision loop
                 while (true) {
                     System.out.print("Hit(h) or Stand(s)? ");
                     String choice = in.nextLine().trim().toLowerCase();
@@ -58,7 +76,7 @@ public class BlackJack {
                     }
                 }
 
-                // Dealer logic only runs if player didn't bust
+                // Dealer logic, only if player hasn't busted
                 if (playerScore <= 21) {
                     dealerHand.add(deck.draw());
                     int dealerScore = calculateScore(dealerHand);
@@ -98,6 +116,13 @@ public class BlackJack {
         }
     }
 
+    /**
+     * Calculates the total Blackjack score for the given hand.
+     * Aces count as 11, but are reduced to 1 if needed to avoid busting.
+     *
+     * @param hand a list of Cards representing a hand
+     * @return the total Blackjack score
+     */
     private int calculateScore(ArrayList<Card> hand) {
         int total = 0;
         int aceCount = 0;
@@ -108,7 +133,7 @@ public class BlackJack {
             total += val;
         }
 
-        // Adjust Aces if total is over 21
+        // Convert Aces from 11 to 1 if necessary
         while (total > 21 && aceCount > 0) {
             total -= 10;
             aceCount--;
@@ -117,6 +142,13 @@ public class BlackJack {
         return total;
     }
 
+    /**
+     * Prompts the player to enter a bet amount or exit.
+     *
+     * @param player the Player placing the bet
+     * @param in the Scanner used for input
+     * @return the bet amount entered, or -1 if the player chooses to exit
+     */
     private int getBet(Player player, Scanner in) {
         while (true) {
             System.out.println("\nCurrent Balance: $" + player.getBalance());
@@ -140,6 +172,12 @@ public class BlackJack {
         }
     }
 
+    /**
+     * Prompts the player to decide whether to play again with the same bet.
+     *
+     * @param in the Scanner used for input
+     * @return true if the player wants to play again, false otherwise
+     */
     private boolean playAgainPrompt(Scanner in) {
         System.out.print("Play again with same bet? (y/n): ");
         String input = in.nextLine().trim().toLowerCase();

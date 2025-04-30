@@ -10,7 +10,7 @@ public class Player extends MainGame {
     }
 
     void showOffEarnings() {
-        System.out.println("Current balance: " + balance);
+        System.out.println("Current balance: $" + balance);
     }
 
     void updateBalance(int amount) {

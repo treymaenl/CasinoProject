@@ -1,7 +1,28 @@
 import java.util.Random;
 import java.util.Scanner;
 
+/**
+ * A simple text-based Roulette game where players can place bets on colors or numbers.
+ * 
+ * The player can bet on:
+ * <ul>
+ *   <li>A specific color: "red", "black", or "green"</li>
+ *   <li>A specific number from 0 to 36</li>
+ * </ul>
+ * Payouts:
+ * <ul>
+ *   <li>2x for correct color</li>
+ *   <li>35x for exact number match</li>
+ * </ul>
+ */
 public class Roulette {
+
+    /**
+     * Begins the Roulette game loop for the provided player.
+     * Continues until the player exits or chooses to stop playing.
+     *
+     * @param player the Player participating in the game
+     */
     public void play(Player player) {
         Scanner in = new Scanner(System.in);
 
@@ -37,12 +58,13 @@ public class Roulette {
                 System.out.println();
 
                 Random rand = new Random();
-                int result = rand.nextInt(37);
+                int result = rand.nextInt(37); // Spin result between 0 and 36
                 String color = getColor(result);
                 System.out.printf("Ball landed on %s %d%n", color.toUpperCase(), result);
 
                 boolean win = false;
 
+                // Color bet logic
                 if (choice.equals("red") || choice.equals("black") || choice.equals("green")) {
                     win = choice.equals(color);
                     if (win) {
@@ -52,6 +74,8 @@ public class Roulette {
                         System.out.println("You lost $" + bet);
                         player.updateBalance(-bet);
                     }
+
+                // Number bet logic
                 } else {
                     try {
                         int guessed = Integer.parseInt(choice);
@@ -74,13 +98,28 @@ public class Roulette {
         }
     }
 
+    /**
+     * Determines the color of the given roulette number.
+     *
+     * @param number the roulette number (0–36)
+     * @return a string representing the color: "red", "black", or "green"
+     */
     private String getColor(int number) {
         if (number == 0) return "green";
-        int[] redNums = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36};
-        for (int r : redNums) if (r == number) return "red";
+        int[] redNums = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36};
+        for (int r : redNums) {
+            if (r == number) return "red";
+        }
         return "black";
     }
 
+    /**
+     * Prompts the player to enter a bet amount or exit the game.
+     *
+     * @param player the Player placing the bet
+     * @param in the Scanner for reading user input
+     * @return the chosen bet amount, or -1 if the player chooses to exit
+     */
     private int getBet(Player player, Scanner in) {
         while (true) {
             System.out.println("\nCurrent Balance: $" + player.getBalance());
@@ -100,6 +139,12 @@ public class Roulette {
         }
     }
 
+    /**
+     * Prompts the player to decide whether to play another round.
+     *
+     * @param in the Scanner for reading user input
+     * @return true if the player chooses to play again; false otherwise
+     */
     private boolean playAgainPrompt(Scanner in) {
         System.out.print("Play again? (y/n): ");
         return in.nextLine().trim().equalsIgnoreCase("y");
