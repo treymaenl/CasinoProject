@@ -1,20 +1,22 @@
 <r>Bar
-<e>Welcome! This is the lovely bar of the Oxford Palace Hotel and Casino! Feel free to explore your options with the "room" command.
+<e>INFO: Welcome! This is the lovely bar of the Oxford Palace Hotel and Casino! Feel free to explore your options with the "room" command.
 <h>
 "order" - order drinks or food from the bar
 "talk" - talk to the bartender
 </h>
 
 <r>Game Room
-<e>entry text
+<e>INFO: This is the casino's bustling Game Room. Try your luck at Slots, Roulette, or BlackJack!
 <h>
-room help
+"games" - play a game (Slots, Roulette, or BlackJack)
 </h>
 
 <r>VIP
-<e>entry text
+<e>INFO: Welcome to the VIP Lounge. This exclusive room offers high-stakes betting and enhanced gameplay experiences.
 <h>
-room help
+"games" - play Game Room games with increased bet limits and enhanced features
+"talk" - speak with the VIP bartender
+"order" - order from the VIP bartender
 </h>
 
 end

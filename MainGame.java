@@ -342,9 +342,17 @@ public class MainGame {
         } else if (!gambler.inRoom.getName().equalsIgnoreCase("Bar") && user.equalsIgnoreCase("games")) {
             games(in);
 
-        // not valid command
+        // VIP bartender talk command
+        } else if (gambler.inRoom.getName().equalsIgnoreCase("VIP") && user.equalsIgnoreCase("talk")) {
+            talkVIP(in);
+
+        // VIP order command
+        } else if (gambler.inRoom.getName().equalsIgnoreCase("VIP") && user.equalsIgnoreCase("order")) {
+            orderVIP(in);
+
+        // invalid command
         } else {
-            if (gambler.inRoom == rooms.get(0)) {
+            if (gambler.inRoom != rooms.get(1)) {
                 System.out.println("\nBARTENDER: Huh?");
             }
             System.out.println("Unrecognized Command");
@@ -627,102 +635,69 @@ public class MainGame {
 
     // Ordering from bar
     private static void orderBar(Scanner in) {
-        System.out.println("\nBARTENDER: What would you like?");
+        System.out.println("\nBARTENDER: Here's the menu. Don't waste my time.");
+    
         System.out.println("""
-                        Menu options:
-                        \s\sDrinks
-                        \s\sFood 
-                        """);
-            while (true) {
-                System.out.printf("Menu: ");
-                String menu = in.nextLine().trim();
-                if (menu.equalsIgnoreCase("exit")) {
-                    System.out.println("\nBARTENDER: Thanks for wasting my time.");
+            BAR MENU:
+              Drinks:
+                1. Dasani - $25
+                2. Tropical Smoothie - $100
+                3. Purified Mercury - $1000
+              Food:
+                4. Slop - $150
+                5. Crustless Greek Zucchini Pie - $750
+                6. Golden Donut - $3500
+            """);
+    
+        while(true) {
+            System.out.print("Your choice (1-6 or \"exit\"): ");
+            String choice = in.nextLine().trim().toLowerCase();
+        
+            switch (choice) {
+                case "1" -> {
+                    gambler.updateBalance(-25);
+                    System.out.println("Dasani purchased! You're thirstier than before." +
+                                        "\nNew Balance: $" + gambler.getBalance());
                     return;
                 }
-                int menuNum = 0;
-                boolean valid = barMenu(menuNum, menu);
-                if (!valid) {
-                    continue;
-                }
-                System.out.println("Current Balance: $" + gambler.getBalance());
-                boolean choosing = true;
-                while (choosing) { 
-                    choosing = barMenuOptions(menuNum, in);
-                }
-                return;
-            }
-    }
-
-    // Bar choices
-    private static boolean barMenu(int menuNum, String menu) {
-        if (menu.equalsIgnoreCase("drinks")) {
-            System.out.println("""
-                            \s\sDRINKS:
-                            \s\s1. "Dasani" - $25
-                            \s\s2. "Tropical Smoothie" - $100
-                            \s\s3. "Purified Mercury" - $1000
-                            """);
-            menuNum = 1;
-        } else if (menu.equalsIgnoreCase("food")) {
-            System.out.println("""
-                            \s\sFOOD:
-                            \s\s1. "Slop" - $150
-                            \s\s2. "Crustless Greek Zucchini Pie" - $750
-                            \s\s3. "Golden Donut" - $3500
-                            """);
-            menuNum = 2;
-        } else {
-            System.out.println("OPTIONS" +
-                                "\n\s\s\"drinks\", \"food\", \"exit\"\n");
-            return false;
-        }
-
-        return true;
-    }
-
-    // Order responses
-    private static boolean barMenuOptions(int menu, Scanner in) {
-        System.out.printf("Order: ");
-        String choice = in.nextLine().trim();
-        if (choice.equalsIgnoreCase("exit")) {
-            System.out.println("\nBARTENDER: Thanks for wasting my time.");
-            return false;
-        }
-        System.out.println();
-        switch(choice) {
-            case "1":
-                if (menu == 1) {
-                    gambler.updateBalance(-25);
-                    System.out.println("Dasani purchased!\nYou're thirstier than before.\nNew Balance: $" + gambler.getBalance());
-                } else {
-                    gambler.updateBalance(-150);
-                    System.out.println("Slop purchased!\nYou feel slightly nauseous.\nNew Balance $" + gambler.getBalance());
-                }
-                return false;
-            case "2":
-                if (menu == 1) {
+                case "2" -> {
                     gambler.updateBalance(-100);
-                    System.out.println("Tropical Smoothie purchased!\nIt is somewhat chunky, but refreshing!\nNew Balance: $" + gambler.getBalance());
-                } else {
-                    gambler.updateBalance(-750);
-                    System.out.println("Crustless Greek Zucchini Pie purchased!\nVery facny, thankfully you only have a minor zucchini alergy!\nNew Balance $" + gambler.getBalance());
+                    System.out.println("Tropical Smoothie purchased! Somewhat chunky, but refreshing." +
+                                        "\nNew Balance: $" + gambler.getBalance());
+                    return;
                 }
-                return false;
-            case "3":
-                if (menu == 1) {
+                case "3" -> {
                     gambler.updateBalance(-1000);
-                    System.out.println("Purified Mercury purchased!\nThe pure euphoria of spending $1000 masks the horrible taste.\nNew Balance: $" + gambler.getBalance());
-                } else {
-                    gambler.updateBalance(-3500);
-                    System.out.println("Golden Donut purchased!\nYou are unable to bite into the pure metal donut, but everyone envies you.\nNew Balance $" + gambler.getBalance());
+                    System.out.println("Purified Mercury purchased! The euphoria of spending $1000 masks the taste." +
+                                        "\nNew Balance: $" + gambler.getBalance());
+                    return;
                 }
-                return false;
-            default:
-                System.out.println("OPTIONS\n\s\s\"1\", \"2\", \"3\", \"exit\"\n");
-                return true;
+                case "4" -> {
+                    gambler.updateBalance(-150);
+                    System.out.println("Slop purchased! You feel slightly nauseous." + 
+                                        "\nNew Balance: $" + gambler.getBalance());
+                    return;
+                }
+                case "5" -> {
+                    gambler.updateBalance(-750);
+                    System.out.println("Crustless Greek Zucchini Pie purchased! Fancy, but you have a minor zucchini allergy." +
+                                        "\nNew Balance: $" + gambler.getBalance());
+                    return;
+                }
+                case "6" -> {
+                    gambler.updateBalance(-3500);
+                    System.out.println("Golden Donut purchased! Too hard to eat, but it impresses everyone." +
+                                        "\nNew Balance: $" + gambler.getBalance());
+                    return;
+                }
+                case "exit" -> {
+                    System.out.println("\nBARTENDER: Thanks for wasting my time.");
+                    return;
+                } 
+                default -> System.out.println("BARTENDER: Can't even read a menu? Try again.");
+            }
         }
-    }
+    }    
 
     // Game room games handling
     private static void games(Scanner in) {
@@ -748,6 +723,59 @@ public class MainGame {
                 case "3" -> new BlackJack().play(gambler, in);
                 default -> System.out.println("Invalid choice.");
             }
+    }
+
+    private static void talkVIP(Scanner in) {
+        System.out.println("\nVIP BARTENDER: Welcome back, boss.");
+        
+        Random rand = new SecureRandom();
+        String[] vipLines = {
+            "Another winning streak, I see.",
+            "Your usual drink is ready on the rocks.",
+            "Let me know if the slot machines are treating you right.",
+            "They say the house always wins... I guess you're the house."
+        };
+    
+        int index = rand.nextInt(vipLines.length);
+        System.out.println(vipLines[index]);
+    }
+
+    private static void orderVIP(Scanner in) {
+        System.out.println("\nVIP BARTENDER: Here's our exclusive menu, boss.");
+    
+        System.out.println("""
+            VIP MENU:
+              Drinks:
+                1. Aged Scotch - $500
+                2. Liquid Gold Martini - $2000
+              Food:
+                3. Filet Mignon Bites - $3000
+                4. Caviar & Chips - $5000
+            """);
+    
+        System.out.print("Your choice (1-4 or \"exit\"): ");
+        String choice = in.nextLine().trim().toLowerCase();
+    
+        switch (choice) {
+            case "1" -> {
+                gambler.updateBalance(-500);
+                System.out.println("You sip a deep, smoky Aged Scotch. Refined. New Balance: $" + gambler.getBalance());
+            }
+            case "2" -> {
+                gambler.updateBalance(-2000);
+                System.out.println("The Liquid Gold Martini glows faintly. You're not sure it's legal. New Balance: $" + gambler.getBalance());
+            }
+            case "3" -> {
+                gambler.updateBalance(-3000);
+                System.out.println("The Filet Mignon Bites melt in your mouth. Luxury. New Balance: $" + gambler.getBalance());
+            }
+            case "4" -> {
+                gambler.updateBalance(-5000);
+                System.out.println("You crunch the finest chips known to man, dipped in caviar. Power. New Balance: $" + gambler.getBalance());
+            }
+            case "exit" -> System.out.println("VIP BARTENDER: As you wish.");
+            default -> System.out.println("VIP BARTENDER: I don't serve indecisiveness. Try again.");
+        }
     }
 
 }
