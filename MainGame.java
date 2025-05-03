@@ -7,6 +7,21 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
+/**
+ * MainGame is the text based game loop.
+ * It handles player initialization, room transitions, interactions, save/load logic, game commands, and the main loop.
+ * 
+ * Features include:
+ * - File-driven room loading
+ * - Persistent save/load system
+ * - Multiple game types (Slots, Roulette, BlackJack)
+ * - VIP room perks and unlockable content
+ * - Golden Donut tracking and usage
+ * 
+ * This class also maintains global game state, including the player object,
+ * room list, and tutorial tracking.
+ */
+
 public class MainGame {
     static Player gambler;
     public static ArrayList<Room> rooms = new ArrayList<>();
@@ -37,7 +52,11 @@ public class MainGame {
     static String[] bartenderVIP = {"Looking good!", "I knew the second you walked in that you'd beat the house!", "Way to go today boss!"};
     static int barLastTalk = -1;
 
-    // Some important information to have to start the game
+    /**
+     * Initializes the game by reading room data from a file.
+     * 
+     * @throws FileNotFoundException if the Rooms.txt file is not found
+     */
     private static void setupGame() throws FileNotFoundException {
         File roomData = new File("Rooms.txt");
         if (!roomData.exists()) {
@@ -46,7 +65,12 @@ public class MainGame {
         roomFromFile(roomData);
     }
 
-    // Creates rooms based on textfile, can add more rooms easier
+    /**
+     * Reads room data from a text file and populates the rooms list.
+     * File must contain specific markers: <r>, <e>, <h>, </h>
+     * 
+     * @param roomData the file containing room definitions
+     */
     private static void roomFromFile(File roomData) {
         try (Scanner reader = new Scanner(roomData)) {
             // boolean for room name (r), entry text (e), and help text (h)
@@ -131,6 +155,12 @@ public class MainGame {
         rooms.get(2).setLocked(true);
     }
 
+    /**
+     * Deletes the save file if it's empty or incorrectly formatted.
+     * 
+     * @param saveFile the save file to validate
+     * @throws FileNotFoundException if file read fails
+     */
     public static void deleteBadSave(File saveFile) throws FileNotFoundException {
         // deleting bad saves
         if (saveFile.exists()) {
@@ -154,7 +184,7 @@ public class MainGame {
                 reader.close();
 
                 // Proper save file should only be 4 lines
-                if (lineCount != 5) {
+                if (lineCount != 6) {
                     saveFile.delete();
                     System.out.println("Bad save file deleted");
                 }
@@ -162,6 +192,12 @@ public class MainGame {
         }
     }
 
+    /**
+     * Starts a new game or loads a saved one depending on the existence of the save file.
+     * 
+     * @param saveFile the file storing saved game state
+     * @param in the Scanner object for user input
+     */
     public static void start(File saveFile, Scanner in) {
         // Starting or loading game
         try {
@@ -210,6 +246,11 @@ public class MainGame {
         }
     }
 
+    /**
+     * Presents a tutorial for new players if requested.
+     * 
+     * @param in the Scanner object for user input
+     */
     public static void tutorial(Scanner in) {
         String user;
         while (tutorial) { 
@@ -245,6 +286,12 @@ public class MainGame {
         }
     }
 
+    /**
+     * Main entry point for the game. Initializes and starts the main loop.
+     * 
+     * @param args command line arguments (not used)
+     * @throws FileNotFoundException if Rooms.txt is missing
+     */
     public static void main(String[] args) throws FileNotFoundException {
         // looking for existing save file
         File saveFile = new File("save.txt");
@@ -275,6 +322,12 @@ public class MainGame {
         }
     }
 
+    /**
+     * Processes and executes a player command.
+     * 
+     * @param user the command entered by the player
+     * @param in the Scanner object for user input
+     */
     public static void handleCommand(String user, Scanner in) {
         // help command
         if (user.equals("?") || user.equalsIgnoreCase("help")) {
@@ -360,8 +413,12 @@ public class MainGame {
 
     }
 
-    // for handling asking player yes or no
-    // 1 for yes, 0 for no, -1 if neither
+    /**
+     * Converts user yes/no input into a response code.
+     * 
+     * @param user the raw input string
+     * @return 1 for yes, 0 for no, -1 for invalid
+     */
     static int yesOrNo(String user) {
         user = user.toUpperCase();
         
@@ -376,7 +433,11 @@ public class MainGame {
         }
     }
 
-    // for quitting the game
+    /**
+     * Prompts the user to confirm quitting and saves before exiting.
+     * 
+     * @param in the Scanner object for user input
+     */
     private static void quit(Scanner in) {
         String user;
         while (true) {
@@ -395,7 +456,11 @@ public class MainGame {
         }
     }
 
-    // for restarting game
+    /**
+     * Prompts the user to confirm restarting and deletes the save file.
+     * 
+     * @param in the Scanner object for user input
+     */
     static void restart(Scanner in) {
         File delete = new File("save.txt");
         String user;
@@ -416,7 +481,9 @@ public class MainGame {
         }
     }
 
-    // for loading game
+    /**
+     * Loads game data from the save file.
+     */
     static void loadGame() {
         // Using save file to load game
         File saveFile = new File("save.txt");
@@ -431,8 +498,12 @@ public class MainGame {
                         gambler.inRoom = room;
                     }
                 }
+                // VIP status
                 rooms.get(2).setLocked(Boolean.parseBoolean(reader.nextLine()));
+                // Tutorial status
                 tutorial = Boolean.parseBoolean(reader.nextLine());
+                // Golden donuts
+                gambler.setDonutCount(Integer.parseInt(reader.nextLine()));
 
                 // Succesful game load
                 System.out.println("Game loaded. Welcome back, " + gambler.getName() + ".");
@@ -445,15 +516,25 @@ public class MainGame {
         }
     }
 
-    // for saving game
+    /**
+     * Saves the current game state to a file.
+     * 
+     * @param printSave whether to print confirmation to the console
+     */
     static void saveGame(boolean printSave) {
         try (FileWriter writer = new FileWriter("save.txt")) {
-            // Name, balance, room, VIP status, tutorial status
+            // Name
             writer.write(gambler.getName() + "\n");
+            // Balance
             writer.write(gambler.getBalance() + "\n");
+            // Room
             writer.write(gambler.inRoom.getName() + "\n");
+            // VIP status
             writer.write(rooms.get(2).locked + "\n");
+            // Tutorial status
             writer.write(tutorial + "\n");
+            // Golden donut count
+            writer.write(gambler.getDonutCount() + "\n");
 
             // Print save to terminal if wanted
             if (printSave) {
@@ -465,7 +546,12 @@ public class MainGame {
         }
     }
 
-    // for moving rooms
+    /**
+     * Updates the player's current room.
+     * 
+     * @param newRoom the name of the room to move to
+     * @return true if the move is successful or redundant; false if room is invalid
+     */
     static boolean updateRoom(String newRoom) {
         Room from = gambler.inRoom;
         for (Room room : rooms) {
@@ -497,17 +583,28 @@ public class MainGame {
         return false;
     }
 
+    /**
+     * Prints general command help to the console.
+     */
     private static void help() {
         System.out.println("General help:");
         System.out.println(generalHelp);
     }
 
+    /**
+     * Displays help specific to the current room.
+     */
     private static void room() {
         System.out.println("\n" + gambler.inRoom.getName() + " options:");
         System.out.println(gambler.inRoom.getHelp());
     }
 
-    // for moving rooms
+    /**
+     * Handles the "move" command and room selection.
+     * 
+     * @param user the initial move command input
+     * @param in the Scanner object for user input
+     */
     private static void move(String user, Scanner in) {
         String moveTo = "";
             if (user.length() > 4) {
@@ -542,13 +639,18 @@ public class MainGame {
                     }
                 }
             }
+        saveGame(false);
     }
 
+    /**
+     * Displays the player's current information, including balance and VIP status.
+     */
     private static void me() {
         System.out.println("\nYOUR INFORMATION:" +
                         "\n\s\sName: " + gambler.getName() + 
                         "\n\s\sBalance: $" + gambler.getBalance() +
-                        "\n\s\sIn room: " + gambler.inRoom.getName());
+                        "\n\s\sIn room: " + gambler.inRoom.getName() +
+                        "\n\s\sGolden Donuts: " + gambler.getDonutCount());
         if (!rooms.get(2).isLocked()) {
             System.out.println("\s\sVIP Member!");
         } else {
@@ -556,7 +658,12 @@ public class MainGame {
         }
     }
 
-    // Talking with bartender
+    /**
+     * Handles the dialogue interaction with the bartender in the normal bar.
+     * Offers VIP access if criteria are met.
+     * 
+     * @param in the Scanner object for user input
+     */
     private static void talk(Scanner in) {
         System.out.printf("\nBARTENDER: ");
     
@@ -633,7 +740,11 @@ public class MainGame {
         barLastTalk = line;
     }
 
-    // Ordering from bar
+    /**
+     * Displays the bar menu and processes item purchases in the normal bar.
+     * 
+     * @param in the Scanner object for user input
+     */
     private static void orderBar(Scanner in) {
         System.out.println("\nBARTENDER: Here's the menu. Don't waste my time.");
     
@@ -688,6 +799,8 @@ public class MainGame {
                     gambler.updateBalance(-3500);
                     System.out.println("Golden Donut purchased! Too hard to eat, but it impresses everyone." +
                                         "\nNew Balance: $" + gambler.getBalance());
+                    gambler.addDonut();
+                    System.out.println("You now have " + gambler.getDonutCount() + " Golden Donuts.");
                     return;
                 }
                 case "exit" -> {
@@ -699,7 +812,11 @@ public class MainGame {
         }
     }    
 
-    // Game room games handling
+    /**
+     * Handles user game selection (Slots, Roulette, BlackJack).
+     * 
+     * @param in the Scanner object for user input
+     */
     private static void games(Scanner in) {
         System.out.println("""
                 Choose your game:
@@ -725,6 +842,11 @@ public class MainGame {
             }
     }
 
+    /**
+     * Handles dialogue interaction with the VIP bartender.
+     * 
+     * @param in the Scanner object for user input
+     */
     private static void talkVIP(Scanner in) {
         System.out.println("\nVIP BARTENDER: Welcome back, boss.");
         
@@ -740,6 +862,11 @@ public class MainGame {
         System.out.println(vipLines[index]);
     }
 
+    /**
+     * Displays the VIP menu and processes item purchases.
+     * 
+     * @param in the Scanner object for user input
+     */
     private static void orderVIP(Scanner in) {
         System.out.println("\nVIP BARTENDER: Here's our exclusive menu, boss.");
     

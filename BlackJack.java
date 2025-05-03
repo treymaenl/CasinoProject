@@ -35,8 +35,23 @@ public class BlackJack {
                 ArrayList<Card> playerHand = new ArrayList<>();
                 ArrayList<Card> dealerHand = new ArrayList<>();
 
-                playerHand.add(deck.draw());
-                playerHand.add(deck.draw());
+                // Check if player wants to use a Golden Donut
+                if (player.getDonutCount() > 0) {
+                    System.out.print("\nUse a Golden Donut to draw a GOLDEN ACE? (y/n): ");
+                    String use = in.nextLine().trim().toLowerCase();
+                    if (use.equals("y") && player.useDonut()) {
+                        player.useDonut();
+                        playerHand.add(new Card("A", "Gold"));
+                        playerHand.add(deck.draw());
+                        System.out.println("You played a Golden Donut and received a GOLDEN ACE!");
+                    } else {
+                        playerHand.add(deck.draw());
+                        playerHand.add(deck.draw());
+                    }
+                } else {
+                    playerHand.add(deck.draw());
+                    playerHand.add(deck.draw());
+                }
                 dealerHand.add(deck.draw());
 
                 int playerScore = calculateScore(playerHand);

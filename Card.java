@@ -39,6 +39,9 @@ public class Card {
      */
     @Override
     public String toString() {
+        if (value.equalsIgnoreCase("A") && suit.equalsIgnoreCase("Gold")) {
+            return "GOLDEN ACE";
+        }
         return value + " of " + suit;
     }
 }

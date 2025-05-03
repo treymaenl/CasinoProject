@@ -16,6 +16,9 @@ public class Player extends MainGame {
     // Flag indicating if the player has already been offered VIP directly
     public boolean offeredVIP = false;
 
+    // Golden donuts in possession
+    private int goldenDonuts = 0;
+
     /**
      * Constructs a new Player with a given name and initial balance of $1000.
      *
@@ -77,5 +80,43 @@ public class Player extends MainGame {
      */
     public boolean isVIP() {
         return !MainGame.rooms.get(2).isLocked();
+    }
+
+    /**
+     * Adds one Golden Donut to the player's inventory.
+     */
+    public void addDonut() {
+        goldenDonuts++;
+    }
+
+    /**
+     * Uses one Golden Donut if the player has any.
+     *
+     * @return true if a donut was successfully used; false if none were available.
+     */
+    public boolean useDonut() {
+        if (goldenDonuts > 0) {
+            goldenDonuts--;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns the number of Golden Donuts the player currently has.
+     *
+     * @return the count of Golden Donuts.
+     */
+    public int getDonutCount() {
+        return goldenDonuts;
+    }
+
+    /**
+     * Sets the number of Golden Donuts (used during loading saved games).
+     *
+     * @param count the number of donuts to assign to the player.
+     */
+    public void setDonutCount(int count) {
+        this.goldenDonuts = count;
     }
 }
