@@ -58,7 +58,8 @@ public class Roulette {
                 System.out.println();
 
                 Random rand = new Random();
-                int result = rand.nextInt(37); // Spin result between 0 and 36
+                // Spin result between 0 and 36
+                int result = rand.nextInt(37);
                 String color = getColor(result);
                 System.out.printf("Ball landed on %s %d%n", color.toUpperCase(), result);
 
@@ -98,6 +99,7 @@ public class Roulette {
                 }
 
                 player.showOffEarnings();
+                MainGame.saveGame(false);
             } while (!playAgainPrompt(in));
         }
     }
@@ -127,12 +129,13 @@ public class Roulette {
     private int getBet(Player player, Scanner in) {
         while (true) {
             System.out.println("\nCurrent Balance: $" + player.getBalance());
-            System.out.print("Enter bet amount (max $5000) or \"exit\": ");
+            int maxBet = player.inRoom.getName().equalsIgnoreCase("VIP") ? 20000 : 5000;
+            System.out.print("Enter bet amount (max " + maxBet + ") or \"exit\": ");
             String input = in.nextLine().trim();
             if (input.equalsIgnoreCase("exit")) return -1;
             try {
                 int bet = Integer.parseInt(input);
-                if (bet < 1 || bet > 5000 || bet > player.getBalance()) {
+                if (bet < 1 || bet > maxBet) {
                     System.out.println("Invalid or insufficient balance.");
                 } else {
                     return bet;

@@ -38,24 +38,29 @@ public class Slots {
                 System.out.println();
 
                 Random rand = new Random();
-                int odds = 5;
-                int a = rand.nextInt(odds), b = rand.nextInt(odds), c = rand.nextInt(odds), d = rand.nextInt(odds);
-                System.out.printf("[%d] [%d] [%d] [%d]%n", a, b, c, d);
+                int odds = 6;
+                int rows = (player.isVIP()) ? 3 : 1;
+                for (int i = 0; i < rows; i++) {
+                    int a = rand.nextInt(odds), b = rand.nextInt(odds), c = rand.nextInt(odds), d = rand.nextInt(odds);
+                    System.out.printf("[%d] [%d] [%d] [%d]%n", a, b, c, d);
 
-                if (a == b && b == c && c == d) {
-                    System.out.println("Jackpot! You win $" + (bet * 10));
-                    player.updateBalance((bet * 10) - bet);
-                } else if ((a == b && b == c) || (b == c && c == d) || (a == b && b == d) || (a == c && c == d)) {
-                    System.out.println("3 in a row! You win $" + (bet * 3));
-                    player.updateBalance((bet * 3) - bet);
-                } else if (a == b || b == c || c == d) {
-                    System.out.println("Nice! You win $" + (bet * 2));
-                    player.updateBalance((bet * 2) - bet);
-                } else {
-                    System.out.println("You lost $" + bet + ".");
-                    player.updateBalance(-bet);
+                    if (a == b && b == c && c == d) {
+                        System.out.println("Jackpot! You win $" + (bet * 10));
+                        player.updateBalance((bet * 10) - bet);
+                    } else if ((a == b && b == c) || (b == c && c == d)) {
+                        System.out.println("3 in a row! You win $" + (bet * 3));
+                        player.updateBalance((bet * 3) - bet);
+                    } else if (a == b || b == c || c == d) {
+                        System.out.println("Nice! You win $" + (bet * 2));
+                        player.updateBalance((bet * 2) - bet);
+                    } else {
+                        System.out.println("You lost $" + bet + ".");
+                        player.updateBalance(-bet);
+                    }
                 }
+
                 player.showOffEarnings();
+                MainGame.saveGame(false);
             } while (!playAgainPrompt(in));
         }
     }
@@ -70,19 +75,39 @@ public class Slots {
      */
     private int getBet(Player player, Scanner in) {
         while (true) {
+            int bet1, bet2, bet3;
+            if (!player.isVIP()) {
+                bet1 = 20;
+                bet2 = 50;
+                bet3 = 100;
+            } else {
+                bet1 = 100;
+                bet2 = 500;
+                bet3 = 1000;
+            }
             System.out.println("\nCurrent Balance: $" + player.getBalance());
-            System.out.println("""
-            Choose your bet amount:
-              1. $20
-              2. $50
-              3. $100
-              Type "exit" to leave.
-            """);
+            if (player.isVIP()) {
+                System.out.println("""
+                    Choose your bet amount:
+                      1. $100
+                      2. $500
+                      3. $1000
+                      Type "exit" to leave slots.
+                    """);
+            } else {
+                System.out.println("""
+                    Choose your bet amount:
+                      1. $20
+                      2. $50
+                      3. $100
+                      Type "exit" to leave slots.
+                    """);
+            }
             String input = in.nextLine().trim();
             return switch (input) {
-                case "1" -> 20;
-                case "2" -> 50;
-                case "3" -> 100;
+                case "1" -> bet1;
+                case "2" -> bet2;
+                case "3" -> bet3;
                 case "exit" -> -1;
                 default -> {
                     System.out.println("Invalid choice.");

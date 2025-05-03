@@ -112,6 +112,7 @@ public class BlackJack {
 
                     player.showOffEarnings();
                 }
+                MainGame.saveGame(false);
             } while (!playAgainPrompt(in));
         }
     }
@@ -152,14 +153,15 @@ public class BlackJack {
     private int getBet(Player player, Scanner in) {
         while (true) {
             System.out.println("\nCurrent Balance: $" + player.getBalance());
-            System.out.print("Enter bet amount (max $5000) or type 'exit': ");
+            int maxBet = player.inRoom.getName().equalsIgnoreCase("VIP") ? 20000 : 5000;
+            System.out.print("Enter bet amount (max " + maxBet + ") or \"exit\": ");
             String input = in.nextLine().trim();
 
             if (input.equalsIgnoreCase("exit")) return -1;
 
             try {
                 int bet = Integer.parseInt(input);
-                if (bet < 1 || bet > 5000) {
+                if (bet < 1 || bet > maxBet) {
                     System.out.println("Bet must be between 1 and 5000.");
                 } else if (bet > player.getBalance()) {
                     System.out.println("You don't have enough balance.");

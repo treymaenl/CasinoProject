@@ -1,3 +1,8 @@
+/**
+ * The Player class represents a player in the casino game.
+ * It stores the player's name, balance, current room, and VIP offer status.
+ * Provides methods to access and update player details and check VIP membership.
+ */
 public class Player extends MainGame {
     // The name of the player
     private String name;
@@ -7,6 +12,9 @@ public class Player extends MainGame {
 
     // The current room the player is in
     public Room inRoom;
+
+    // Flag indicating if the player has already been offered VIP directly
+    public boolean offeredVIP = false;
 
     /**
      * Constructs a new Player with a given name and initial balance of $1000.
@@ -60,5 +68,14 @@ public class Player extends MainGame {
      */
     public int getBalance() {
         return this.balance;
+    }
+
+    /**
+     * Checks whether the player is a VIP.
+     *
+     * @return true if VIP room is unlocked; false otherwise.
+     */
+    public boolean isVIP() {
+        return !MainGame.rooms.get(2).isLocked();
     }
 }

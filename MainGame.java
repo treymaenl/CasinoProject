@@ -224,6 +224,7 @@ public class MainGame {
                 break;
             }
         }
+        // Tutorial text
         if (tutorial) {
             System.out.println("Very well then!\nTUTORIAL\n" +
                                 "Here are some important commands that you will be using to play the game:");
@@ -331,28 +332,17 @@ public class MainGame {
 
         // bartender talk command
         } else if (gambler.inRoom == rooms.get(0) && user.equalsIgnoreCase("talk")) {
-            talk();
+            talk(in);
 
         // mocking command
         } else if (user.equals("Huh?")) {
             System.out.println("\nBARTENDER: Are we gonna have a problem?");
 
+        // games command
+        } else if (!gambler.inRoom.getName().equalsIgnoreCase("Bar") && user.equalsIgnoreCase("games")) {
+            games(in);
+
         // not valid command
-        } else if (gambler.inRoom.getName().equalsIgnoreCase("Game Room") && user.equalsIgnoreCase("games")) {
-            System.out.println("""
-                Choose your game:
-                  1. Slots
-                  2. Roulette
-                  3. BlackJack
-                """);
-            System.out.print("Enter choice: ");
-            String choice = in.nextLine().trim();
-            switch (choice) {
-                case "1" -> new Slots().play(gambler);
-                case "2" -> new Roulette().play(gambler);
-                case "3" -> new BlackJack().play(gambler, in);
-                default -> System.out.println("Invalid choice.");
-            } 
         } else {
             if (gambler.inRoom == rooms.get(0)) {
                 System.out.println("\nBARTENDER: Huh?");
@@ -378,6 +368,7 @@ public class MainGame {
         }
     }
 
+    // for quitting the game
     private static void quit(Scanner in) {
         String user;
         while (true) {
@@ -508,6 +499,7 @@ public class MainGame {
         System.out.println(gambler.inRoom.getHelp());
     }
 
+    // for moving rooms
     private static void move(String user, Scanner in) {
         String moveTo = "";
             if (user.length() > 4) {
@@ -556,32 +548,84 @@ public class MainGame {
         }
     }
 
-    private static void talk() {
+    // Talking with bartender
+    private static void talk(Scanner in) {
         System.out.printf("\nBARTENDER: ");
+    
+        // VIP room offer logic
+        if (!gambler.isVIP() && gambler.getBalance() >= 10000) {
+            if (!gambler.offeredVIP) {
+                System.out.println("You’ve been doing pretty well in the Game Room. Ever thought about the VIP Lounge?");
+                System.out.println("  1. VIP?");
+                System.out.println("  2. Leave");
+                System.out.print("Choice: ");
+                String choice = in.nextLine().trim();
 
-            Random random = new SecureRandom();
-            int line = random.nextInt(bartenderStandard.length);
-            while (line == barLastTalk) {
-                line = random.nextInt(bartenderStandard.length);
-            }
+                while (!choice.equals("1") && !choice.equals("2")) {
+                    System.out.println("Invalid choice. Choose \"1\" or \"2\".");
+                    System.out.print("Choice: ");
+                    choice = in.nextLine().trim();
+                }
 
-            if (line == 4) {
-                int rare = 1;
-                while (rare < 3) {
-                    line = random.nextInt(bartenderStandard.length);
-                    if (line == 4) {
-                        rare++;
+                if (choice.equals("1")) {
+                    System.out.println("\nINFO: VIP Lounge grants you perks like larger bets and the ability to spin multiple slots at once.");
+                    System.out.println("\nBARTENDER: Access costs $10,000.");
+                    System.out.println("\nCurrent Balance: $" + gambler.getBalance());
+                    System.out.print("\nWould you like to purchase VIP access? (y/n): ");
+                    String confirm = in.nextLine().trim().toLowerCase();
+                    if (confirm.equals("y")) {
+                        gambler.updateBalance(-10000);
+                        rooms.get(2).setLocked(false);
+                        System.out.println("Welcome to the VIP club!");
                     } else {
-                        break;
+                        System.out.println("\n BARTENDER: No problem. Let me know if you change your mind.");
+                        gambler.offeredVIP = true;
                     }
+                    return;
+                } else {
+                    System.out.println("Alright. Come back if you're interested.");
+                    return;
+                }
+            } else {
+                System.out.println("VIP access is still available for $10,000. Would you like to buy it? (y/n): ");
+                String confirm = in.nextLine().trim().toLowerCase();
+                if (confirm.equals("y")) {
+                    gambler.updateBalance(-10000);
+                    rooms.get(2).setLocked(false);
+                    System.out.println("Welcome to the VIP club!");
+                    saveGame(true);
+                } else {
+                    System.out.println("Alright. Let me know if you change your mind.");
+                }
+                return;
+            }
+        }
+    
+        // Default bartender talk if no VIP logic applies
+        Random random = new SecureRandom();
+        int line = random.nextInt(bartenderStandard.length);
+        while (line == barLastTalk) {
+            line = random.nextInt(bartenderStandard.length);
+        }
+    
+        if (line == 4) {
+            int rare = 1;
+            while (rare < 3) {
+                line = random.nextInt(bartenderStandard.length);
+                if (line == 4) {
+                    rare++;
+                } else {
+                    break;
                 }
             }
-
-            String bartender = bartenderStandard[line];
-            System.out.println(bartender);
-            barLastTalk = line;
+        }
+    
+        String bartender = bartenderStandard[line];
+        System.out.println(bartender);
+        barLastTalk = line;
     }
 
+    // Ordering from bar
     private static void orderBar(Scanner in) {
         System.out.println("\nBARTENDER: What would you like?");
         System.out.println("""
@@ -610,6 +654,7 @@ public class MainGame {
             }
     }
 
+    // Bar choices
     private static boolean barMenu(int menuNum, String menu) {
         if (menu.equalsIgnoreCase("drinks")) {
             System.out.println("""
@@ -636,6 +681,7 @@ public class MainGame {
         return true;
     }
 
+    // Order responses
     private static boolean barMenuOptions(int menu, Scanner in) {
         System.out.printf("Order: ");
         String choice = in.nextLine().trim();
@@ -676,6 +722,24 @@ public class MainGame {
                 System.out.println("OPTIONS\n\s\s\"1\", \"2\", \"3\", \"exit\"\n");
                 return true;
         }
+    }
+
+    // Game room games handling
+    private static void games(Scanner in) {
+        System.out.println("""
+                Choose your game:
+                  1. Slots
+                  2. Roulette
+                  3. BlackJack
+                """);
+            System.out.print("Enter choice: ");
+            String choice = in.nextLine().trim();
+            switch (choice) {
+                case "1" -> new Slots().play(gambler);
+                case "2" -> new Roulette().play(gambler);
+                case "3" -> new BlackJack().play(gambler, in);
+                default -> System.out.println("Invalid choice.");
+            }
     }
 
 }
