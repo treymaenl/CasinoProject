@@ -103,6 +103,7 @@ public class Slots {
                       Type "exit" to leave slots.
                     """);
             }
+            System.out.print("Enter bet option: ");
             String input = in.nextLine().trim();
             return switch (input) {
                 case "1" -> bet1;
@@ -126,6 +127,7 @@ public class Slots {
     private boolean playAgainPrompt(Scanner in) {
         System.out.print("Spin again? (y/n): ");
         String response = in.nextLine().trim();
+        System.out.println();
         return response.equalsIgnoreCase("n");
     }
 }

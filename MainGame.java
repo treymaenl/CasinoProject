@@ -734,6 +734,14 @@ public class MainGame {
                 """);
             System.out.print("Enter choice: ");
             String choice = in.nextLine().trim();
+            while (!choice.equals("1") && !choice.equals("2") && !choice.equals("3")) {
+                System.out.println("Invalid choice. Choose \"1\", \"2\", \"3\", or \"exit\".");
+                System.out.print("Enter choice: ");
+                choice = in.nextLine().trim();
+                if (choice.equalsIgnoreCase("exit")) {
+                    return;
+                }
+            }
             switch (choice) {
                 case "1" -> new Slots().play(gambler);
                 case "2" -> new Roulette().play(gambler);
