@@ -1,9 +1,9 @@
 /**
  * The Player class represents a player in the casino game.
- * It stores the player's name, balance, current room, and VIP offer status.
+ * It stores the player's name, balance, current room, VIP offer status, and golden donut count.
  * Provides methods to access and update player details and check VIP membership.
  */
-public class Player extends MainGame {
+public class Player {
     // The name of the player
     private String name;
 
